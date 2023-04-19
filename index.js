@@ -128,10 +128,7 @@ class EthRpc {
             this.#provider = new ConnectWebsocket(urlRpc);
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => {
-                this.#eventList.onError.push(res);
-                onError(res);
-            });
+            this.#provider.onError(res => onError(res));
             this.#provider.onMessage(res => {
                 if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
             });
@@ -140,10 +137,7 @@ class EthRpc {
             this.#provider = new ConnectIpc(urlRpc);
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => {
-                this.#eventList.onError.push(res);
-                onError(res);
-            });
+            this.#provider.onError(res => onError(res));
             this.#provider.onMessage(res => {
                 if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
             });
@@ -206,10 +200,6 @@ class EthRpc {
 
                 idSetInterval = setInterval(() => {
                     this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
-                    this.#eventList.onError.forEach((it) => {
-                        reject(it);
-                        clearInterval(idSetInterval);
-                    });
                 });
             });
             return result;
@@ -257,10 +247,6 @@ class EthRpc {
 
                 idSetInterval = setInterval(() => {
                     this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
-                    this.#eventList.onError.forEach((it) => {
-                        reject(it);
-                        clearInterval(idSetInterval);
-                    });
                 });
             });
             return result;
