@@ -4,7 +4,7 @@
   "description": "Simple client for handle eth namespace",
   "main": "index.js",
   "scripts": {
-    "test": "node index.js"
+    "test": "node ./test/test.js"
   },
   "homepage": "https://github.com/damartripamungkas/simple-client-eth-rpc",
   "repository": {
