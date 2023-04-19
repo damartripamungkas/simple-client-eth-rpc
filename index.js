@@ -129,14 +129,18 @@ class EthRpc {
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
             this.#provider.onError(res => this.#eventList.onError.push(res));
-            this.#provider.onMessage(res => this.#eventList.onMessage.push(res));
+            this.#provider.onMessage(res => {
+                if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
+            });
         } else if (urlRpc.startsWith("ipc")) {
             this.#typeNetwork = "ipc";
             this.#provider = new ConnectIpc(urlRpc);
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
             this.#provider.onError(res => this.#eventList.onError.push(res));
-            this.#provider.onMessage(res => this.#eventList.onMessage.push(res));
+            this.#provider.onMessage(res => {
+                if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
+            });
         }
 
         setInterval(() => {
