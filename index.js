@@ -119,7 +119,7 @@ class EthRpc {
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
     #eventList = { onMessage: [], onError: [] };
 
-    constructor(urlRpc = "") {
+    constructor(urlRpc = "", onError = (err) => { }) {
         if (urlRpc.startsWith("http")) {
             this.#typeNetwork = "http";
             this.#provider = new ConnectHttp(urlRpc)
@@ -128,7 +128,10 @@ class EthRpc {
             this.#provider = new ConnectWebsocket(urlRpc);
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => this.#eventList.onError.push(res));
+            this.#provider.onError(res => {
+                this.#eventList.onError.push(res);
+                onError(res);
+            });
             this.#provider.onMessage(res => {
                 if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
             });
@@ -137,7 +140,10 @@ class EthRpc {
             this.#provider = new ConnectIpc(urlRpc);
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => this.#eventList.onError.push(res));
+            this.#provider.onError(res => {
+                this.#eventList.onError.push(res);
+                onError(res);
+            });
             this.#provider.onMessage(res => {
                 if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
             });

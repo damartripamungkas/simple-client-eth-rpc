@@ -1,5 +1,7 @@
 const EthRpc = require('../index');
-const provider = new EthRpc("https://bscrpc.com");
+const provider = new EthRpc("https://bscrpc.com", (err) => {
+    console.log(`[ERR] ${err}`);
+});
 
 (async () => {
     /**
