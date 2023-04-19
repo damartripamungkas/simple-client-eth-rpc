@@ -175,31 +175,28 @@ class EthRpc {
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
             const result = await new Promise((resolve, reject) => {
-                let idSetInterval = 0;
-                const handle = (it, index, eventMethod) => {
-                    try {
-                        it = JSON.parse(it);
-                        if (it.id == id) {
-                            resolve(it);
+                const idSetInterval = setInterval(() => {
+                    this.#eventList.onMessage.forEach((it, index) => {
+                        try {
+                            it = JSON.parse(it);
+                            if (it.id == id) {
+                                resolve(it);
 
-                            // delete value eventList with index
-                            let arr = this.#eventList[eventMethod];
-                            arr.splice(index, 1);
-                            this.#eventList[eventMethod] = arr;
+                                // delete value eventList with index
+                                let arr = this.#eventList[eventMethod];
+                                arr.splice(index, 1);
+                                this.#eventList.onMessage = arr;
+
+                                // stop operation setInterval
+                                clearInterval(idSetInterval);
+                            }
+                        } catch (err) {
+                            reject(err);
 
                             // stop operation setInterval
                             clearInterval(idSetInterval);
                         }
-                    } catch (err) {
-                        reject(err);
-
-                        // stop operation setInterval
-                        clearInterval(idSetInterval);
-                    }
-                };
-
-                idSetInterval = setInterval(() => {
-                    this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
+                    });
                 });
             });
             return result;
@@ -219,34 +216,31 @@ class EthRpc {
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
             const result = await new Promise((resolve, reject) => {
-                let idSetInterval = 0;
-                const handle = (it, index, eventMethod) => {
-                    try {
-                        it = JSON.parse(it);
-                        if (
-                            Array.isArray(it) &&
-                            lengthMethodAndParams == methodAndParams.filter(f => it.some(item => item.id === f.id)).length
-                        ) {
-                            resolve(it);
+                const idSetInterval = setInterval(() => {
+                    this.#eventList.onMessage.forEach((it, index) => {
+                        try {
+                            it = JSON.parse(it);
+                            if (
+                                Array.isArray(it) &&
+                                lengthMethodAndParams == methodAndParams.filter(f => it.some(item => item.id === f.id)).length
+                            ) {
+                                resolve(it);
 
-                            // delete value eventList with index
-                            let arr = this.#eventList[eventMethod];
-                            arr.splice(index, 1);
-                            this.#eventList[eventMethod] = arr;
+                                // delete value eventList with index
+                                let arr = this.#eventList.onMessage;
+                                arr.splice(index, 1);
+                                this.#eventList.onMessage = arr;
+
+                                // stop operation setInterval
+                                clearInterval(idSetInterval);
+                            }
+                        } catch (err) {
+                            reject(it);
 
                             // stop operation setInterval
                             clearInterval(idSetInterval);
                         }
-                    } catch (err) {
-                        reject(it);
-
-                        // stop operation setInterval
-                        clearInterval(idSetInterval);
-                    }
-                };
-
-                idSetInterval = setInterval(() => {
-                    this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
+                    });
                 });
             });
             return result;
