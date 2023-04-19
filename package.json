@@ -1,7 +1,7 @@
 {
   "name": "simple-client-eth-rpc",
   "version": "1.0.0",
-  "description": "Simple eth rpc for handle eth client namespace",
+  "description": "Simple client for handle eth namespace",
   "main": "index.js",
   "scripts": {
     "test": "node ./test/test.js"
