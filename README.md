@@ -1,7 +1,7 @@
 <h1 align="center">SIMPLE-ETH-RPC</h1>
 
 <h3 align="center">
-    This script was created to prioritize speed over functionality, perfect for use with websocket and ipc networks
+    This script was created to prioritize speed over functionality, perfect for use with websocket and ipc networks. this script works as CLIENT not SERVER
 </h3>
 
 <p align="center">
@@ -13,16 +13,43 @@
   
   <img alt="Repository size" src="https://img.shields.io/github/repo-size/damartripamungkas/simple-eth-rpc?color=04D361&labelColor=000000">
   
-  <a href="https://github.com/johnggli/linktree/commits/master">
+  <a href="#">
     <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/damartripamungkas/simple-eth-rpc?color=04D361&labelColor=000000">
   </a>
 </p>
 
 ---
 
-## Step to install
-1. npm install simple-eth-rpc
-2. import module
+## 💻 Step to install
+```
+npm install simple-eth-rpc
+```
 
-## License
-Licensed under the [MIT](./LICENSE).
+## ✏️ Example 
+```javascript
+const EthRpc = require('simple-eth-rpc');
+const provider = new EthRpc("https://bscrpc.com");
+
+(async() => {
+    // send 1 request
+    await provider.isReady(); // must be call before send request
+    const getChainId = await provider.send("eth_chainId", []);
+    console.log(`INFO chainid is: ${BigInt(getChainId.result)}`);
+
+    // send multiple request
+    const getBlockNumberAndChainId = await provider.sendBatch([
+        { method: "eth_blockNumber", params: [] },
+        { method: "eth_chainId", params: [] }
+    ]);
+    const onlyResult = getBlockNumberAndChainId.map(it => BigInt(it.result));
+    console.log(`INFO blockNumber and chainId is: ${onlyResult}`);
+})();
+```
+
+## 🧾 Pre-Requisistes
+```
+node.js
+```
+ 
+## 📝 License
+Licensed under the [MIT License](./LICENSE).

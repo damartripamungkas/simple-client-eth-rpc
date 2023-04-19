@@ -14,7 +14,7 @@ const provider = new EthRpc("https://bscrpc.com");
      * @param array params - parameter request
      * @returns hex
      */
-    const getChainId = (await provider.send("eth_chainId", []));
+    const getChainId = await provider.send("eth_chainId", []);
     console.log("🚀 ~ file: test.js:18 ~ getChainId:", BigInt(getChainId.result));
 
     /**
