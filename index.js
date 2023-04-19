@@ -166,7 +166,6 @@ class EthRpc {
         };
         this.#provider.send(dataJsonRpc);
         this.#provider.onMessage(handle);
-        this.#provider.onError(handle);
     }
 
     async #unSubscribe(subId = "") {
@@ -207,7 +206,10 @@ class EthRpc {
 
                 idSetInterval = setInterval(() => {
                     this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
-                    this.#eventList.onError.forEach((it, index) => handle(it, index, "onError"));
+                    this.#eventList.onError.forEach((it) => {
+                        reject(it);
+                        clearInterval(idSetInterval);
+                    });
                 });
             });
             return result;
@@ -255,7 +257,10 @@ class EthRpc {
 
                 idSetInterval = setInterval(() => {
                     this.#eventList.onMessage.forEach((it, index) => handle(it, index, "onMessage"));
-                    this.#eventList.onError.forEach((it, index) => handle(it, index, "onError"));
+                    this.#eventList.onError.forEach((it) => {
+                        reject(it);
+                        clearInterval(idSetInterval);
+                    });
                 });
             });
             return result;
