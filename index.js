@@ -209,12 +209,12 @@ class EthRpc {
             return Object.assign(it, { jsonrpc: "2.0", id: this.#nextId });
         });
 
-        const lengthMethodAndParams = methodAndParams.length;
         const dataJsonRpc = JSON.stringify(methodAndParams);
 
         if (this.#typeNetwork == "http") return await this.#provider.send(dataJsonRpc);
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
+            const lengthMethodAndParams = methodAndParams.length;
             const result = await new Promise((resolve, reject) => {
                 const idSetInterval = setInterval(() => {
                     this.#eventList.onMessage.forEach((it, index) => {
