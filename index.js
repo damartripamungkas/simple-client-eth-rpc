@@ -18,12 +18,15 @@ class ConnectHttp {
         try {
             const res = await fetch(this.#url, {
                 method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: data
             });
-            return await res.json();
+            const jsonData = await res.json();
+            if (jsonData["error"] !== undefined) {
+                throw jsonData.error;
+            }
+
+            return jsonData.result;
         } catch (err) {
             throw err;
         }
@@ -199,7 +202,12 @@ class EthRpc {
                     });
                 });
             });
-            return result;
+
+            if (result["error"] !== undefined) {
+                throw result.error;
+            }
+
+            return result.result;
         }
     }
 
@@ -243,7 +251,12 @@ class EthRpc {
                     });
                 });
             });
-            return result;
+
+            if (result["error"] !== undefined) {
+                throw result.error;
+            }
+
+            return result.result;
         }
     }
 
