@@ -1,6 +1,6 @@
 {
   "name": "simple-client-eth-rpc",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Simple client for handle eth namespace",
   "main": "index.js",
   "scripts": {
