@@ -480,6 +480,34 @@ class EthRpc {
     async web3_sha3(data = "") {
         return await this.send("web3_sha3", [data]);
     }
+
+    async debug_getBadBlocks() {
+        return await this.send("debug_getBadBlocks", []);
+    }
+
+    async debug_storageRangeAt(blockHash = "", txIndex = "", address = "", startKey = "", limit = "") {
+        return await this.send("debug_storageRangeAt", [blockHash, txIndex, address, startKey, limit]);
+    }
+
+    async debug_traceBlock(blockRlpEncode = "", tracerObject = { tracer: "callTracer", tracerConfig: { onlyTopCall: false } }) {
+        return await this.send("debug_traceBlock", [blockRlpEncode, tracerObject]);
+    }
+
+    async debug_traceBlockByHash(blockHash = "", tracerObject = { tracer: "callTracer", tracerConfig: { onlyTopCall: false } }) {
+        return await this.send("debug_traceBlockByHash", [blockHash, tracerObject]);
+    }
+
+    async debug_traceBlockByNumber(quantityOrTag = "pending", tracerObject = { tracer: "callTracer", tracerConfig: { onlyTopCall: false } }) {
+        return await this.send("debug_traceBlockByNumber", [quantityOrTag, tracerObject]);
+    }
+
+    async debug_traceCall(tx = InterfaceTraceCall, quantityOrTag = "pending", tracerObject = { tracer: "callTracer", tracerConfig: { onlyTopCall: false } }) {
+        return await this.send("debug_traceCall", [tx, quantityOrTag, tracerObject]);
+    }
+
+    async debug_traceTransaction(hash = "", tracerObject = { tracer: "callTracer", tracerConfig: { onlyTopCall: false }, timeout: "5" }) {
+        return await this.send("debug_traceTransaction", [hash, tracerObject]);
+    }
 }
 
 module.exports = EthRpc;
