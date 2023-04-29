@@ -152,10 +152,6 @@ class EthRpc {
                 if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
             });
         }
-
-        setInterval(() => {
-            if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
-        }, 50);
     }
 
     async #subscribe(params = [], callbackRes = (res) => { }) {
@@ -174,6 +170,7 @@ class EthRpc {
         };
         this.#provider.send(dataJsonRpc);
         this.#provider.onMessage(handle);
+        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
     }
 
     async #unSubscribe(subId = "") {
@@ -220,6 +217,7 @@ class EthRpc {
 
             return result.result;
         }
+        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
     }
 
     async sendBatch(methodAndParams = [{ method: "", params: [] }]) {
@@ -269,6 +267,7 @@ class EthRpc {
 
             return result.result;
         }
+        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
     }
 
     async isReady() {
