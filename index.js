@@ -133,18 +133,14 @@ class EthRpc {
         if (urlRpc.startsWith("http")) {
             this.#typeNetwork = "http";
             this.#provider = new ConnectHttp(urlRpc)
-        } else if (urlRpc.startsWith("ws")) {
-            this.#typeNetwork = "ws";
-            this.#provider = new ConnectWebsocket(urlRpc);
-            this.subscribe = this.#subscribe; // convert private func to public
-            this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => onError(res));
-            this.#provider.onMessage(res => {
-                if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
-            });
-        } else if (urlRpc.startsWith("ipc")) {
-            this.#typeNetwork = "ipc";
-            this.#provider = new ConnectIpc(urlRpc);
+        } else if (urlRpc.startsWith("ws") || urlRpc.startsWith("ipc")) {
+            if (urlRpc.startsWith("ws")) {
+                this.#typeNetwork = "ws";
+                this.#provider = new ConnectWebsocket(urlRpc);
+            } else {
+                this.#typeNetwork = "ipc";
+                this.#provider = new ConnectIpc(urlRpc);
+            }
             this.subscribe = this.#subscribe; // convert private func to public
             this.unSubscribe = this.#unSubscribe; // convert private func to public
             this.#provider.onError(res => onError(res));
