@@ -179,6 +179,7 @@ class EthRpc {
             if (send["error"] !== undefined) {
                 throw send.error;
             }
+            return send.result;
         } else if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
             const result = await new Promise((resolve, reject) => {
