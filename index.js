@@ -146,6 +146,10 @@ class EthRpc {
         }
     }
 
+    getNextId() {
+        return this.#nextId;
+    }
+
     async #subscribe(params = [], callbackRes = (res) => { }) {
         /**
          * example params:
