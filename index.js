@@ -29,11 +29,7 @@ class ConnectHttp {
                 body: data
             });
             const jsonData = await res.json();
-            if (jsonData["error"] !== undefined) {
-                throw jsonData.error;
-            }
-
-            return jsonData.result;
+            return jsonData;
         } catch (err) {
             throw err;
         }
@@ -178,8 +174,12 @@ class EthRpc {
         const id = this.#nextId;
         const dataJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method, params });
 
-        if (this.#typeNetwork == "http") return await this.#provider.send(dataJsonRpc);
-        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
+        if (this.#typeNetwork == "http") {
+            const send = await this.#provider.send(dataJsonRpc);
+            if (send["error"] !== undefined) {
+                throw send.error;
+            }
+        } else if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
             const result = await new Promise((resolve, reject) => {
                 const idSetInterval = setInterval(() => {
@@ -224,8 +224,16 @@ class EthRpc {
 
         const dataJsonRpc = JSON.stringify(methodAndParams);
 
-        if (this.#typeNetwork == "http") return await this.#provider.send(dataJsonRpc);
-        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
+        if (this.#typeNetwork == "http") {
+            const send = await this.#provider.send(dataJsonRpc);
+            for (let index = 0; index < send.length; index++) {
+                const it = send[index];
+                if (it["error"] !== undefined) {
+                    throw it.error;
+                }
+            }
+            return send.map(it => it.result);
+        } else if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             this.#provider.send(dataJsonRpc);
             const lengthMethodAndParams = methodAndParams.length;
             const result = await new Promise((resolve, reject) => {
