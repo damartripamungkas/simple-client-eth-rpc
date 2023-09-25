@@ -76,14 +76,17 @@ class Provider {
             const handle = (res, resolve, reject) => {
                 try {
                     const parseRes = JSON.parse(res);
-                    if (id == parseRes.id) resolve(parseRes);
+                    if (id == parseRes.id) {
+                        resolve(parseRes);
+                        this.#provider.client.removeListener("message", handle);
+                    }
                 } catch (err) {
                     reject(err)
                 }
             }
 
             result = await new Promise((resolve, reject) => {
-                this.#provider.onMessage(res => handle(res, resolve, reject));
+                this.#provider.client.on("message", (res) => handle(res, resolve, reject));
                 this.#provider.send(bodyJsonRpc);
             });
         }
@@ -133,6 +136,7 @@ class Provider {
                             const it2 = dataJsonRpc[index];
                             if (it1.id == it2.id) {
                                 if (it1.error !== undefined) throw it1.error;
+                                this.#provider.client.removeListener("message", handle);
                                 const returnFormat = args[index][2];
                                 if (returnFormat === undefined) return it1.result;
                                 return returnFormat(it1.result);
@@ -147,7 +151,7 @@ class Provider {
             }
 
             return await new Promise((resolve, reject) => {
-                this.#provider.onMessage(res => handle(res, resolve, reject));
+                this.#provider.client.on("message", (res) => handle(res, resolve, reject));
                 this.#provider.send(bodyJsonRpc);
             });
         }
