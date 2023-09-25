@@ -91,7 +91,6 @@ class EthRpc {
     #typeNetwork;
     #nextId = 0;
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
-    #eventList = { onMessage: [], onError: [] };
 
     constructor(urlRpc = "") {
         if (urlRpc.startsWith("http")) {
