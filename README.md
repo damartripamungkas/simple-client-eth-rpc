@@ -1,9 +1,5 @@
 <h1 align="center">SIMPLE-CLIENT-ETH-RPC</h1>
 
-<h3 align="center">
-    This script was created to prioritize speed over functionality, perfect for use with websocket and ipc networks. this script works as CLIENT not SERVER
-</h3>
-
 <p align="center">
   <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/damartripamungkas/simple-client-eth-rpc?color=04D361&labelColor=000000">
   
@@ -18,7 +14,10 @@
   </a>
 </p>
 
----
+<br>
+
+## 📖 Description
+This very light package was created for those of you who want to interact directly with the EVM Ethereum blockchain according to the documentation.
 
 ## 💻 Step to install
 ```
@@ -27,25 +26,29 @@ npm install simple-client-eth-rpc
 
 ## ✏️ Example 
 ```javascript
-const EthRpc = require('simple-client-eth-rpc');
-const provider = new EthRpc("https://bscrpc.com", (err) => {
-  console.log(`[ERR] ${err}`);
-});
+const { Provider, EthNameSpace } = require("simple-client-eth-rpc")
+const provider = new Provider("https://bscrpc.com")
+const ethName = new EthNameSpace()
 
-(async() => {
+(async () => {
+    await provider.isReady() // must be run before execute any function
+
     // send 1 request
-    await provider.isReady(); // must be call before send request
-    const getChainId = await provider.send("eth_chainId", []);
-    console.log(`INFO chainid is: ${BigInt(getChainId.result)}`);
+    const getChainId = await provider.send(ethName.eth_chainId())
+    console.log(`INFO chainid is: ${getChainId}`) // 0
 
     // send multiple request
-    const getBlockNumberAndChainId = await provider.sendBatch([
-        { method: "eth_blockNumber", params: [] },
-        { method: "eth_chainId", params: [] }
-    ]);
-    const onlyResult = getBlockNumberAndChainId.map(it => BigInt(it.result));
-    console.log(`INFO blockNumber and chainId is: ${onlyResult}`);
-})();
+    const getBlockNumberAndChainId = await provider.sendBatch(
+        ethName.eth_blockNumber(),
+        ethName.eth_chainId()
+    )
+    console.log(`INFO blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
+
+    // subscribe spesific event blockchain
+    provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
+        console.log("result pending transaction:", result)
+    })
+})()
 ```
 
 ## 🧾 Pre-Requisistes
