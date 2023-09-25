@@ -50,7 +50,7 @@ class Provider {
         };
 
         this.#provider.send(bodyJsonRpc);
-        this.#provider.onMessage(handle);
+        this.#provider.client.on("message", (res) => handle(res));
     }
 
     /**
