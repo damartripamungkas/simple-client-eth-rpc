@@ -1,10 +1,10 @@
 {
   "name": "simple-client-eth-rpc",
-  "version": "1.1.2",
-  "description": "Simple client for handle eth namespace",
+  "version": "2.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"=== run node ./test/test.js for test ===\""
+    "test": "node ./test/test.js"
   },
   "homepage": "https://github.com/damartripamungkas/simple-client-eth-rpc",
   "repository": {
@@ -16,15 +16,24 @@
     "npm-package",
     "http-client",
     "websocket-client",
+    "ipc-client",
     "web3js",
+    "json-rpc",
     "ethersjs",
     "ethereum-provider",
-    "ipc-client",
+    "ethereum-client",
+    "simple-rpc",
+    "simple-eth-rpc",
+    "simple-rpc-eth",
     "simple-client-eth-rpc"
   ],
   "author": "damartripamungkas",
   "license": "MIT",
   "dependencies": {
+    "node-fetch-commonjs": "^3.3.2",
     "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0"
   }
 }
