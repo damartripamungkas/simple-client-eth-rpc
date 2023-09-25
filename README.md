@@ -16,15 +16,15 @@
 
 <br>
 
-## 📖 Description
+### 📖 Description
 This very light package was created for those of you who want to interact directly with the EVM Ethereum blockchain according to the documentation.
 
-## 💻 Step to install
+### 💻 Step to install
 ```
 npm install simple-client-eth-rpc
 ```
 
-## ✏️ Example 
+### ✏️ Example 
 ```javascript
 const { Provider, EthNameSpace } = require("simple-client-eth-rpc")
 const provider = new Provider("https://bscrpc.com")
@@ -51,10 +51,10 @@ const ethName = new EthNameSpace()
 })()
 ```
 
-## 🧾 Pre-Requisistes
+### 🧾 Pre-Requisistes
 ```
 node.js
 ```
  
-## 📝 License
+### 📝 License
 Licensed under the [MIT License](./LICENSE).
