@@ -10,111 +10,79 @@ const InterfaceTraceFilter = { fromBlock: "", toBlock: "", fromAddress: "", toAd
 
 
 class ConnectHttp {
-    #url;
     constructor(url = "") {
-        this.#url = url;
-        this.#connect();
+        this.url = url;
     }
 
-    async #connect() {
-        const res = await fetch(this.#url, { method: "GET" });
-        if (res.status == 200) return true;
-    }
+    connect = () => { }
 
-    async send(data) {
-        try {
-            const res = await fetch(this.#url, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: data
-            });
-            const jsonData = await res.json();
-            return jsonData;
-        } catch (err) {
-            throw err;
-        }
-    }
+    isReady() { return true; }
 
-    isReady() {
-        return true;
+    send = async (data) => {
+        const res = await fetch(this.url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: data
+        });
+        const jsonData = await res.json();
+        return jsonData;
     }
 }
 
 class ConnectWebsocket {
-    #ws;
-    #url;
     constructor(url = "") {
-        this.#url = url;
-        this.#connect();
+        this.client = this.connect(url);
     }
 
-    #connect() {
-        this.#ws = new Websocket(this.#url, { handshakeTimeout: 20000 });
-        this.#ws.on("close", () => {
+    connect = (url) => {
+        const args = [url, { handshakeTimeout: 20000 }];
+        const client = new Websocket(...args);
+        client.on("close", () => {
             setTimeout(() => {
-                this.#ws.terminate();
-                this.#ws = new Websocket(this.#url, { handshakeTimeout: 20000 });
-                console.log("network is disconnect, try reconnect in 2s");
+                client.terminate();
+                this.client = new Websocket(...args);
             }, 2000)
         });
+
+        return client;
     }
 
-    onMessage(callbackRes) {
-        this.#ws.on("message", callbackRes)
-    }
-
-    onError(callbackRes) {
-        this.#ws.on("error", callbackRes)
-    }
-
-    send(data) {
-        this.#ws.send(data)
-    }
-
-    async isReady() {
-        return new Promise((resolve) => {
-            this.#ws.on("open", () => resolve(true));
-            this.#ws.off("open", () => { });
+    isReady = async () => {
+        return new Promise(resolve => {
+            this.client.once("open", () => resolve(true));
         })
+    }
+
+    send = (data) => {
+        this.client.send(data);
     }
 }
 
 class ConnectIpc {
-    #ipc;
-    #url;
     constructor(url = "") {
-        this.#url = url;
-        this.#connect();
+        this.client = this.connect(url);
     }
 
-    #connect() {
-        this.#ipc = net.createConnection(this.#url);
-        this.#ipc.on("close", () => {
+    connect = (url) => {
+        const client = net.createConnection(url);
+        client.on("close", () => {
             setTimeout(() => {
-                this.#ipc.destroy();
-                this.#ipc = net.createConnection(this.#url);
-                console.log("network is disconnect, try reconnect in 2s");
+                client.destroy();
+                this.client = net.createConnection(url);
             }, 2000)
         });
+
+        return client;
     }
 
-    onMessage(callbackRes) {
-        this.#ipc.on("data", callbackRes)
-    }
-
-    onError(callbackRes) {
-        this.#ipc.on("error", callbackRes)
-    }
-
-    send(data) {
-        this.#ipc.write(data)
-    }
-
-    async isReady() {
-        return new Promise((resolve) => {
-            this.#ipc.on("ready", () => resolve(true));
-            this.#ipc.off("ready", () => { });
+    isReady = async () => {
+        return new Promise(resolve => {
+            this.client.on("ready", () => resolve(true));
         })
+    }
+
+    send = (data) => {
+        this.client.send(data);
     }
 }
 
@@ -125,161 +93,123 @@ class EthRpc {
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
     #eventList = { onMessage: [], onError: [] };
 
-    constructor(urlRpc = "", onError = (err) => { }) {
+    constructor(urlRpc = "") {
         if (urlRpc.startsWith("http")) {
             this.#typeNetwork = "http";
-            this.#provider = new ConnectHttp(urlRpc)
-        } else if (urlRpc.startsWith("ws") || urlRpc.startsWith("ipc")) {
-            if (urlRpc.startsWith("ws")) {
-                this.#typeNetwork = "ws";
-                this.#provider = new ConnectWebsocket(urlRpc);
-            } else {
-                this.#typeNetwork = "ipc";
-                this.#provider = new ConnectIpc(urlRpc);
-            }
-            this.subscribe = this.#subscribe; // convert private func to public
-            this.unSubscribe = this.#unSubscribe; // convert private func to public
-            this.#provider.onError(res => onError(res));
-            this.#provider.onMessage(res => {
-                if (res.method != "eth_subscription") this.#eventList.onMessage.push(res);
-            });
+            this.#provider = new ConnectHttp(urlRpc);
+            this.subscribe = () => { throw `network type http not support subscribe` };
+        }
+
+        if (urlRpc.startsWith("ws")) {
+            this.#typeNetwork = "ws";
+            this.#provider = new ConnectWebsocket(urlRpc);
+        }
+
+        if (urlRpc.endsWith(".ipc")) {
+            this.#typeNetwork = "ipc";
+            this.#provider = new ConnectIpc(urlRpc);
         }
     }
 
-    getNextId() {
-        return this.#nextId;
+    #incrementNextId = () => {
+        if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
+        this.#nextId += 1; // increment id jsonrpc
     }
 
-    async #subscribe(params = [], callbackRes = (res) => { }) {
+    subscribe = async (method = "", params = [], callbackRes = (res) => { res }) => {
         /**
          * example params:
-         * ["newPendingTransactions"] 
+         * eth_subscribe, ["newPendingTransactions"]
          */
-        this.#nextId += 1; // increment id jsonrpc
-        const dataJsonRpc = JSON.stringify({ jsonrpc: "2.0", id: this.#nextId, method: "eth_subscribe", params });
-        const handle = (it) => {
+        this.#incrementNextId();
+        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id: this.#nextId, method, params });
+        const handle = (res) => {
             try {
-                callbackRes(JSON.parse(it));
+                callbackRes(JSON.parse(res));
             } catch (err) {
                 // callbackRes(err, null);
             }
         };
-        this.#provider.send(dataJsonRpc);
+
+        this.#provider.send(bodyJsonRpc);
         this.#provider.onMessage(handle);
-        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
     }
 
-    async #unSubscribe(subId = "") {
-        return await this.send("eth_unsubscribe", [subId]);
-    }
-
-    async send(method = "", params = []) {
-        this.#nextId += 1; // increment id jsonrpc
+    send = async (method = "", params = []) => {
+        this.#incrementNextId();
         const id = this.#nextId;
-        const dataJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method, params });
+        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method, params });
+        let result;
 
         if (this.#typeNetwork == "http") {
-            const send = await this.#provider.send(dataJsonRpc);
-            if (send["error"] !== undefined) {
-                throw send.error;
-            }
-            return send.result;
-        } else if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            this.#provider.send(dataJsonRpc);
-            const result = await new Promise((resolve, reject) => {
-                const idSetInterval = setInterval(() => {
-                    this.#eventList.onMessage.forEach((it, index) => {
-                        try {
-                            it = JSON.parse(it);
-                            if (it.id == id) {
-                                resolve(it);
-
-                                // delete value eventList with index
-                                let arr = this.#eventList[eventMethod];
-                                arr.splice(index, 1);
-                                this.#eventList.onMessage = arr;
-
-                                // stop operation setInterval
-                                clearInterval(idSetInterval);
-                            }
-                        } catch (err) {
-                            reject(err);
-
-                            // stop operation setInterval
-                            clearInterval(idSetInterval);
-                        }
-                    });
-                });
-            });
-
-            if (result["error"] !== undefined) {
-                throw result.error;
-            }
-
-            return result.result;
+            result = await this.#provider.send(bodyJsonRpc);
         }
-        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
+
+        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
+            result = await new Promise((resolve, reject) => {
+                const handle = (res) => {
+                    try {
+                        const parseRes = JSON.parse(res);
+                        if (id == parseRes.id) resolve(parseRes);
+                    } catch (err) {
+                        reject(err)
+                    }
+                }
+
+                this.#provider.onMessage(handle);
+                this.#provider.send(bodyJsonRpc);
+            });
+        }
+
+        if (result.error !== undefined) throw result.error;
+        return result.result;
     }
 
-    async sendBatch(methodAndParams = [{ method: "", params: [] }]) {
-        methodAndParams = methodAndParams.map(it => {
-            this.#nextId += 1; // increment id jsonrpc
+    sendBatch = async (params = [{ method: "", params: [] }]) => {
+        const lengthParams = params.length;
+        const dataJsonRpc = params.map(it => {
+            this.#incrementNextId();
             return Object.assign(it, { jsonrpc: "2.0", id: this.#nextId });
         });
 
-        const dataJsonRpc = JSON.stringify(methodAndParams);
+        const bodyJsonRpc = JSON.stringify(dataJsonRpc);
 
         if (this.#typeNetwork == "http") {
-            const send = await this.#provider.send(dataJsonRpc);
-            for (let index = 0; index < send.length; index++) {
-                const it = send[index];
-                if (it["error"] !== undefined) {
-                    throw it.error;
-                }
-            }
-            return send.map(it => it.result);
-        } else if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            this.#provider.send(dataJsonRpc);
-            const lengthMethodAndParams = methodAndParams.length;
-            const result = await new Promise((resolve, reject) => {
-                const idSetInterval = setInterval(() => {
-                    this.#eventList.onMessage.forEach((it, index) => {
-                        try {
-                            it = JSON.parse(it);
-                            if (
-                                Array.isArray(it) &&
-                                lengthMethodAndParams == methodAndParams.filter(f => it.some(item => item.id === f.id)).length
-                            ) {
-                                resolve(it);
-
-                                // delete value eventList with index
-                                let arr = this.#eventList.onMessage;
-                                arr.splice(index, 1);
-                                this.#eventList.onMessage = arr;
-
-                                // stop operation setInterval
-                                clearInterval(idSetInterval);
-                            }
-                        } catch (err) {
-                            reject(it);
-
-                            // stop operation setInterval
-                            clearInterval(idSetInterval);
-                        }
-                    });
-                });
+            const res = await this.#provider.send(bodyJsonRpc);
+            return res.map(it => {
+                if (it.error !== undefined) throw it.error;
+                return it.result;
             });
-
-            if (result["error"] !== undefined) {
-                throw result.error;
-            }
-
-            return result.result;
         }
-        this.#nextId >= this.#maxSafeNextId ? this.#nextId = 0 : null;
+
+        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
+            return await new Promise((resolve, reject) => {
+                const handle = (res) => {
+                    try {
+                        const parseRes = JSON.parse(res);
+                        if (Array.isArray(parseRes) && parseRes.length == lengthParams) {
+                            const map = parseRes.map((it1, index) => {
+                                const it2 = params[index];
+                                if (it1.id == it2.id) {
+                                    if (it1.error !== undefined) throw it1.error;
+                                    return it1.result;
+                                }
+                            });
+
+                            resolve(map);
+                        }
+                    } catch (err) {
+                        reject(err)
+                    }
+                }
+
+                this.#provider.onMessage(handle);
+                this.#provider.send(bodyJsonRpc);
+            });
+        }
     }
 
-    async isReady() {
+    isReady = async () => {
         return await this.#provider.isReady();
     }
 
@@ -291,7 +221,7 @@ class EthRpc {
         return await this.send("eth_chainId", []);
     }
 
-    async eth_call(tx = InterfaceTxObjCall, quantityOrTag = "pending") {
+    async eth_call(tx = InterfaceTxObjCall, quantityOrTag = "latest") {
         return await this.send("eth_call", [tx, quantityOrTag]);
     }
 
@@ -454,7 +384,7 @@ class EthRpc {
         return await this.send("trace_call", [obj, typeTrace, quantityOrTag]);
     }
 
-    async trace_callMany(arrParams = [[obj = InterfaceTraceCall, arr = ["vmTrace", "trace", "stateDiff"]]], quantityOrTag = "pending") {
+    async trace_callMany(arrParams = [], quantityOrTag = "pending") {
         return await this.send("trace_callMany", [arrParams, quantityOrTag]);
     }
 
