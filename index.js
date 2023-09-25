@@ -43,9 +43,9 @@ class Provider {
         const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id: this.#nextId, method: args[0], params: args[1] });
         const handle = (res) => {
             try {
-                callbackRes(JSON.parse(res));
+                callbackRes(JSON.parse(res).result);
             } catch (err) {
-                // callbackRes(err, null);
+                callbackRes(err);
             }
         };
 
