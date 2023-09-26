@@ -50,7 +50,7 @@ class Provider {
         };
 
         this.#provider.send(bodyJsonRpc);
-        this.#provider.client.on("message", (res) => handle(res));
+        this.#provider.client.on("message", handle);
     }
 
     /**
@@ -73,20 +73,26 @@ class Provider {
         }
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            const handle = (res, resolve, reject) => {
-                try {
-                    const parseRes = JSON.parse(res);
-                    if (id == parseRes.id) {
-                        resolve(parseRes);
+            result = await new Promise((resolve, reject) => {
+                const handle = (res) => {
+                    let isReturn;
+                    try {
+                        const parseRes = JSON.parse(res);
+                        if (id == parseRes.id) {
+                            resolve(parseRes);
+                            isReturn = true;
+                        }
+                    } catch (err) {
+                        reject(err)
+                        isReturn = true;
+                    }
+
+                    if (isReturn === true) {
                         this.#provider.client.removeListener("message", handle);
                     }
-                } catch (err) {
-                    reject(err)
                 }
-            }
 
-            result = await new Promise((resolve, reject) => {
-                this.#provider.client.on("message", (res) => handle(res, resolve, reject));
+                this.#provider.client.on("message", handle);
                 this.#provider.send(bodyJsonRpc);
             });
         }
@@ -128,30 +134,35 @@ class Provider {
         }
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            const handle = (res, resolve, reject) => {
-                try {
-                    const parseRes = JSON.parse(res);
-                    if (Array.isArray(parseRes) && parseRes.length == lengthArgs) {
-                        const map = parseRes.map((it1, index) => {
-                            const it2 = dataJsonRpc[index];
-                            if (it1.id == it2.id) {
+            return await new Promise((resolve, reject) => {
+                const handle = (res) => {
+                    let isReturn;
+                    try {
+                        const parseRes = JSON.parse(res);
+                        if (Array.isArray(parseRes) && parseRes.length == lengthArgs) {
+                            const map = parseRes.map((it1, index) => {
+                                const it2 = dataJsonRpc[index];
+                                if (it1.id != it2.id) return;
                                 if (it1.error !== undefined) throw it1.error;
-                                this.#provider.client.removeListener("message", handle);
                                 const returnFormat = args[index][2];
                                 if (returnFormat === undefined) return it1.result;
                                 return returnFormat(it1.result);
-                            }
-                        });
+                            });
 
-                        resolve(map);
+                            resolve(map);
+                            isReturn = true;
+                        }
+                    } catch (err) {
+                        reject(err);
+                        isReturn = true;
                     }
-                } catch (err) {
-                    reject(err);
-                }
-            }
 
-            return await new Promise((resolve, reject) => {
-                this.#provider.client.on("message", (res) => handle(res, resolve, reject));
+                    if (isReturn === true) {
+                        this.#provider.client.removeListener("message", handle);
+                    }
+                }
+
+                this.#provider.client.on("message", handle);
                 this.#provider.send(bodyJsonRpc);
             });
         }
