@@ -9,20 +9,21 @@ const ethName = new EthNameSpace();
      */
     await provider.isReady();
 
-    // test method .send()
+    // test function .send()
     const getChainId = await provider.send(ethName.eth_chainId());
     console.log("🚀 ~ file: test.js:20 ~ getChainId:", getChainId);
 
-    // test method .sendBatch()
+    // test function .sendBatch()
     const getBlockNumberAndChainId = await provider.sendBatch(
         ethName.eth_blockNumber(),
         ethName.eth_chainId()
     );
     console.log("🚀 ~ file: test.js:27 ~ getBlockNumberAndChainId:", getBlockNumberAndChainId);
 
-    // // remove this comment for run method
-    // test method .subscribe()
-    // provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
+    // test function .subscribe() and method unsubscribe
+    // const subsId = await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
     //     console.log("🚀 ~ file: test.js:31:", result);
     // });
+
+    // await provider.send(ethName.eth_unsubscribe(subsId));
 })();
