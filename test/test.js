@@ -21,9 +21,8 @@ const ethName = new EthNameSpace();
     console.log("🚀 ~ file: test.js:27 ~ getBlockNumberAndChainId:", getBlockNumberAndChainId);
 
     // test function .subscribe() and method unsubscribe
-    // const subsId = await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
+    // await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result, subsId) => {
     //     console.log("🚀 ~ file: test.js:31:", result);
+    //     await provider.send(ethName.eth_unsubscribe(subsId));
     // });
-
-    // await provider.send(ethName.eth_unsubscribe(subsId));
 })();
