@@ -8,49 +8,76 @@ class Provider {
     #typeNetwork;
     #nextId = 0;
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
+    #poolMessage = new Map();
+    #handleErrorOther = (err) => { err };
 
-    constructor(urlRpc = "") {
-        if (urlRpc.startsWith("http")) {
-            this.#typeNetwork = "http";
-            this.#provider = new ConnectHttp(urlRpc);
-            this.subscribe = () => { throw `network type http not support subscribe` };
-        }
+    /**
+     * 
+     * @param urlRpc url node blockchain 
+     * @param handleErrorOther function to handle error other than JSON-RPC
+     */
+    constructor(urlRpc = "", handleErrorOther = (err) => { err }) {
+        this.#handleErrorOther = handleErrorOther;
 
-        if (urlRpc.startsWith("ws")) {
-            this.#typeNetwork = "ws";
-            this.#provider = new ConnectWs(urlRpc);
-        }
+        const listenPoolMessage = () => {
+            this.#provider.client.on("message", (res) => {
+                res = JSON.parse(res);
+                if (res?.params?.subscription !== undefined) return;
+                if (res.length !== undefined) return;
+                const resolve = this.#poolMessage.get(res.id);
+                resolve(res);
+            })
+        };
 
-        if (urlRpc.endsWith(".ipc")) {
-            this.#typeNetwork = "ipc";
-            this.#provider = new ConnectIpc(urlRpc);
+        try {
+            if (urlRpc.startsWith("http")) {
+                this.#typeNetwork = "http";
+                this.#provider = new ConnectHttp(urlRpc);
+                this.subscribe = () => { throw `network type http not support subscribe` };
+            }
+
+            if (urlRpc.startsWith("ws")) {
+                this.#typeNetwork = "ws";
+                this.#provider = new ConnectWs(urlRpc);
+                listenPoolMessage();
+            }
+
+            if (urlRpc.endsWith(".ipc")) {
+                this.#typeNetwork = "ipc";
+                this.#provider = new ConnectIpc(urlRpc);
+                listenPoolMessage();
+            }
+        } catch (err) {
+            handleErrorOther(err);
         }
     }
 
     #incrementNextId = () => {
         if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
-        this.#nextId += 1; // increment id jsonrpc
+        return this.#nextId += 1; // increment id jsonrpc
     }
 
     /**
      * 
      * @param {*} args format: [method, params]
      * @param {*} args example: ["eth_subscribe", "newPendingTransactions"]
-     * @returns string || object || number
+     * @returns subs id string
      */
-    subscribe = (args = [], callbackRes = (res) => { res }) => {
-        this.#incrementNextId();
-        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id: this.#nextId, method: args[0], params: args[1] });
+    subscribe = async (args = [], callbackRes = (res) => { res }) => {
+        const subsId = await this.send(args);
         const handle = (res) => {
             try {
-                callbackRes(JSON.parse(res).result);
+                res = JSON.parse(res);
+                if (res?.params?.subscription == subsId) {
+                    callbackRes(res.params.result);
+                }
             } catch (err) {
-                callbackRes(err);
+                this.#handleErrorOther(err);
             }
         };
 
-        this.#provider.send(bodyJsonRpc);
         this.#provider.client.on("message", handle);
+        return subsId;
     }
 
     /**
@@ -60,12 +87,9 @@ class Provider {
      * @returns string || object || number
      */
     send = async (args = []) => {
-        this.#incrementNextId();
-        const id = this.#nextId;
-        const method = args[0];
-        const params = args[1];
+        const id = this.#incrementNextId();
         const returnFormat = args[2];
-        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method, params });
+        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method: args[0], params: args[1] });
         let result = {};
 
         if (this.#typeNetwork == "http") {
@@ -73,26 +97,27 @@ class Provider {
         }
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            result = await new Promise((resolve, reject) => {
-                const handle = (res) => {
-                    let isReturn;
-                    try {
-                        const parseRes = JSON.parse(res);
-                        if (id == parseRes.id) {
-                            resolve(parseRes);
-                            isReturn = true;
-                        }
-                    } catch (err) {
-                        reject(err)
-                        isReturn = true;
-                    }
+            result = await new Promise((resolve) => {
+                // const handle = (res) => {
+                //     let isReturn;
+                //     try {
+                //         const parseRes = JSON.parse(res);
+                //         if (id == parseRes.id) {
+                //             resolve(parseRes);
+                //             isReturn = true;
+                //         }
+                //     } catch (err) {
+                //         reject(err)
+                //         isReturn = true;
+                //     }
 
-                    if (isReturn === true) {
-                        this.#provider.client.removeListener("message", handle);
-                    }
-                }
+                //     if (isReturn === true) {
+                //         this.#provider.client.removeListener("message", handle);
+                //     }
+                // }
 
-                this.#provider.client.on("message", handle);
+                // this.#provider.client.on("message", handle);
+                this.#poolMessage.set(id, resolve);
                 this.#provider.send(bodyJsonRpc);
             });
         }
@@ -109,7 +134,6 @@ class Provider {
      * @returns [string || object || number, string || object || number]
      */
     sendBatch = async (...args) => {
-        // params = [{ method: "", params: [] }]
         const lengthArgs = args.length;
         const dataJsonRpc = args.map(it => {
             this.#incrementNextId();
@@ -134,31 +158,31 @@ class Provider {
         }
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            return await new Promise((resolve, reject) => {
+            return await new Promise((resolve) => {
                 const handle = (res) => {
-                    let isReturn;
                     try {
                         const parseRes = JSON.parse(res);
-                        if (Array.isArray(parseRes) && parseRes.length == lengthArgs) {
-                            const map = parseRes.map((it1, index) => {
+                        if (parseRes.length == lengthArgs) {
+                            const resFilter = parseRes.filter((it1, index) => {
                                 const it2 = dataJsonRpc[index];
-                                if (it1.id != it2.id) return;
+                                if (it1.id != it2.id) return false;
                                 if (it1.error !== undefined) throw it1.error;
-                                const returnFormat = args[index][2];
-                                if (returnFormat === undefined) return it1.result;
-                                return returnFormat(it1.result);
+                                return true;
                             });
 
-                            resolve(map);
-                            isReturn = true;
+                            if (resFilter.length == lengthArgs) {
+                                const map = parseRes.map((it1, index) => {
+                                    const returnFormat = args[index][2];
+                                    if (returnFormat === undefined) return it1.result;
+                                    return returnFormat(it1.result);
+                                });
+
+                                resolve(map);
+                                this.#provider.client.removeListener("message", handle);
+                            }
                         }
                     } catch (err) {
-                        reject(err);
-                        isReturn = true;
-                    }
-
-                    if (isReturn === true) {
-                        this.#provider.client.removeListener("message", handle);
+                        this.#handleErrorOther(err);
                     }
                 }
 
