@@ -61,15 +61,15 @@ class Provider {
      * 
      * @param {*} args format: [method, params]
      * @param {*} args example: ["eth_subscribe", "newPendingTransactions"]
-     * @returns subs id string
+     * @callback res = result, subsId = subscription id
      */
-    subscribe = async (args = [], callbackRes = (res) => { res }) => {
-        const subsId = await this.send(args);
+    subscribe = async (args = [], callbackRes = (res, subsId) => { res, subsId }) => {
+        let subsId = await this.send(args);
         const handle = (res) => {
             try {
                 res = JSON.parse(res);
                 if (res?.params?.subscription == subsId) {
-                    callbackRes(res.params.result);
+                    callbackRes(res.params.result, subsId);
                 }
             } catch (err) {
                 this.#handleErrorOther(err);
@@ -77,7 +77,8 @@ class Provider {
         };
 
         this.#provider.client.on("message", handle);
-        return subsId;
+        this.#provider.client.on("error", async () => subsId = await this.send(args)); // reconnect subscription when "error"
+        this.#provider.client.on("close", async () => subsId = await this.send(args)); // reconnect subscription when "close"
     }
 
     /**
@@ -98,25 +99,6 @@ class Provider {
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             result = await new Promise((resolve) => {
-                // const handle = (res) => {
-                //     let isReturn;
-                //     try {
-                //         const parseRes = JSON.parse(res);
-                //         if (id == parseRes.id) {
-                //             resolve(parseRes);
-                //             isReturn = true;
-                //         }
-                //     } catch (err) {
-                //         reject(err)
-                //         isReturn = true;
-                //     }
-
-                //     if (isReturn === true) {
-                //         this.#provider.client.removeListener("message", handle);
-                //     }
-                // }
-
-                // this.#provider.client.on("message", handle);
                 this.#poolMessage.set(id, resolve);
                 this.#provider.send(bodyJsonRpc);
             });
