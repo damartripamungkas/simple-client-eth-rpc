@@ -47,13 +47,12 @@ const ethName = new EthNameSpace()
     console.log(`INFO: blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
 
     // subscribe spesific event blockchain
-    const subsId = await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
+    await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result, subsId) => {
         console.log("INFO: result pending transaction:", result)
+        // unsubscribe event blockchain
+        const unsubscribe = await provider.send(ethName.eth_unsubscribe(subsId))
+        console.log(`INFO: result unsubscribe: ${unsubscribe}`)
     })
-
-    // unsubscribe event blockchain
-    const unsubscribe = await provider.send(ethName.eth_unsubscribe(subsId))
-    console.log(`INFO: result unsubscribe: ${unsubscribe}`)
 })()
 ```
 
