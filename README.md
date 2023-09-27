@@ -1,4 +1,6 @@
-<h1 align="center">SIMPLE-CLIENT-ETH-RPC</h1>
+<h1 align="center">
+    SIMPLE-CLIENT-ETH-RPC
+</h1>
 
 <p align="center">
   <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/damartripamungkas/simple-client-eth-rpc?color=04D361&labelColor=000000">
@@ -16,15 +18,15 @@
 
 <br>
 
-### 📖 Description
+### 📖 Description :
 This very light package was created for those of you who want to interact directly with the EVM Ethereum blockchain according to the documentation.
 
-### 💻 Step to install
+### 💻 Step to install : 
 ```
 npm install simple-client-eth-rpc
 ```
 
-### ✏️ Example 
+### ✏️ Example :
 ```javascript
 const { Provider, EthNameSpace } = require("simple-client-eth-rpc")
 const provider = new Provider("https://bscrpc.com")
@@ -35,26 +37,30 @@ const ethName = new EthNameSpace()
 
     // send 1 request
     const getChainId = await provider.send(ethName.eth_chainId())
-    console.log(`INFO chainid is: ${getChainId}`) // 0
+    console.log(`INFO: chainid is: ${getChainId}`) // 0
 
     // send multiple request
     const getBlockNumberAndChainId = await provider.sendBatch(
         ethName.eth_blockNumber(),
         ethName.eth_chainId()
     )
-    console.log(`INFO blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
+    console.log(`INFO: blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
 
     // subscribe spesific event blockchain
-    provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
-        console.log("result pending transaction:", result)
+    const subsId = await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result) => {
+        console.log("INFO: result pending transaction:", result)
     })
+
+    // unsubscribe event blockchain
+    const unsubscribe = await provider.send(ethName.eth_unsubscribe(subsId))
+    console.log(`INFO: result unsubscribe: ${unsubscribe}`)
 })()
 ```
 
-### 🧾 Pre-Requisistes
+### 🧾 Pre-Requisistes :
 ```
 node.js
 ```
  
-### 📝 License
+### 📝 License :
 Licensed under the [MIT License](./LICENSE).
