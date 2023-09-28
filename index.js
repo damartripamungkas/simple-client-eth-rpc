@@ -26,6 +26,7 @@ class Provider {
                 if (res.length !== undefined) return;
                 const resolve = this.#poolMessage.get(res.id);
                 resolve(res);
+                this.#poolMessage.delete(res.id);
             })
         };
 
