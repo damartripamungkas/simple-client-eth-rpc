@@ -20,6 +20,9 @@
 
 ### 📖 Description :
 This very light package was created for those of you who want to interact directly with the EVM Ethereum blockchain according to the documentation.
+- support network http
+- support network websocket
+- support network ipc
 
 ### 💻 Step to install : 
 ```
@@ -47,11 +50,12 @@ const ethName = new EthNameSpace()
     console.log(`INFO: blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
 
     // subscribe spesific event blockchain
-    await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), (result, subsId) => {
+    await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), false, (result, subsId) => {
         console.log("INFO: result pending transaction:", result)
+
         // unsubscribe event blockchain
-        const unsubscribe = await provider.send(ethName.eth_unsubscribe(subsId))
-        console.log(`INFO: result unsubscribe: ${unsubscribe}`)
+        const unsubs = await provider.send(ethName.eth_unsubscribe(subsId));
+        console.log(`INFO: unsubscribe success with subsId: ${unsubs}`);
     })
 })()
 ```
