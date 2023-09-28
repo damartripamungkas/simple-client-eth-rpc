@@ -31,6 +31,8 @@
   "license": "MIT",
   "dependencies": {
     "node-fetch-commonjs": "^3.3.2",
+    "web3-providers-ipc": "^4.0.7-dev.b8fa712.0",
+    "web3-providers-ws": "^4.0.7-dev.b8fa712.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
