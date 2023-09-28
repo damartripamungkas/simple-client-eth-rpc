@@ -2,51 +2,35 @@ const EthNameSpace = require("./src/name_space/eth");
 const ConnectHttp = require("./src/connect/http");
 const ConnectIpc = require("./src/connect/ipc");
 const ConnectWs = require("./src/connect/ws");
+const InterfaceReconnectOpt = { autoReconnect: true, delay: 500, maxAttempts: Number.MAX_SAFE_INTEGER };
 
 class Provider {
-    #provider;
+    client;
     #typeNetwork;
     #nextId = 0;
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
-    #poolMessage = new Map();
-    #handleErrorOther = (err) => { err };
 
     /**
      * 
      * @param urlRpc url node blockchain 
      * @param handleErrorOther function to handle error other than JSON-RPC
      */
-    constructor(urlRpc = "", handleErrorOther = (err) => { err }) {
-        this.#handleErrorOther = handleErrorOther;
-
-        const listenPoolMessage = () => {
-            this.#provider.client.on("message", (res) => {
-                res = JSON.parse(res);
-                if (res?.params?.subscription !== undefined) return;
-                if (res.length !== undefined) return;
-                const resolve = this.#poolMessage.get(res.id);
-                resolve(res);
-                this.#poolMessage.delete(res.id);
-            })
-        };
-
+    constructor(urlRpc = "", socketOpt = {}, reconnectOpt = InterfaceReconnectOpt, handleErrorOther = (err) => { err }) {
         try {
             if (urlRpc.startsWith("http")) {
                 this.#typeNetwork = "http";
-                this.#provider = new ConnectHttp(urlRpc);
+                this.client = new ConnectHttp(urlRpc, socketOpt);
                 this.subscribe = () => { throw `network type http not support subscribe` };
             }
 
             if (urlRpc.startsWith("ws")) {
                 this.#typeNetwork = "ws";
-                this.#provider = new ConnectWs(urlRpc);
-                listenPoolMessage();
+                this.client = new ConnectWs(urlRpc, socketOpt, reconnectOpt);
             }
 
             if (urlRpc.endsWith(".ipc")) {
                 this.#typeNetwork = "ipc";
-                this.#provider = new ConnectIpc(urlRpc);
-                listenPoolMessage();
+                this.client = new ConnectIpc(urlRpc, socketOpt, reconnectOpt);
             }
         } catch (err) {
             handleErrorOther(err);
@@ -60,26 +44,41 @@ class Provider {
 
     /**
      * 
+     * @returns when "true" is ready
+     */
+    isReady = async () => {
+        return await this.client.isReady();
+    }
+
+    /**
+     * 
+     * @param {*} payload object or array object JSON-RPC request 
+     * @returns result without handling error
+     */
+    request = async (payload = {} || []) => {
+        return await this.client.client.request(payload);
+    }
+
+    /**
+     * 
      * @param {*} args format: [method, params]
      * @param {*} args example: ["eth_subscribe", "newPendingTransactions"]
      * @callback res = result, subsId = subscription id
      */
-    subscribe = async (args = [], callbackRes = (res, subsId) => { res, subsId }) => {
+    subscribe = async (args = [], reconnect = false, callbackRes = (res, subsId) => { res, subsId }) => {
         let subsId = await this.send(args);
         const handle = (res) => {
-            try {
-                res = JSON.parse(res);
-                if (res?.params?.subscription == subsId) {
-                    callbackRes(res.params.result, subsId);
-                }
-            } catch (err) {
-                this.#handleErrorOther(err);
+            if (res?.params?.subscription == subsId) {
+                callbackRes(res.params.result, subsId);
             }
         };
 
-        this.#provider.client.on("message", handle);
-        this.#provider.client.on("error", async () => subsId = await this.send(args)); // reconnect subscription when "error"
-        this.#provider.client.on("close", async () => subsId = await this.send(args)); // reconnect subscription when "close"
+        this.client.client.on("message", handle);
+        if (reconnect === true) {
+            this.client.client.on("connect", async () => {
+                subsId = await this.send(args);
+            });
+        }
     }
 
     /**
@@ -91,18 +90,14 @@ class Provider {
     send = async (args = []) => {
         const id = this.#incrementNextId();
         const returnFormat = args[2];
-        const bodyJsonRpc = JSON.stringify({ jsonrpc: "2.0", id, method: args[0], params: args[1] });
+        const bodyJsonRpc = { jsonrpc: "2.0", id, method: args[0], params: args[1] };
         let result = {};
-
         if (this.#typeNetwork == "http") {
-            result = await this.#provider.send(bodyJsonRpc);
+            result = await this.client.client.request(bodyJsonRpc);
         }
 
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            result = await new Promise((resolve) => {
-                this.#poolMessage.set(id, resolve);
-                this.#provider.send(bodyJsonRpc);
-            });
+            result = await this.client.client.request(bodyJsonRpc);
         }
 
         if (result.error !== undefined) throw result.error;
@@ -117,8 +112,7 @@ class Provider {
      * @returns [string || object || number, string || object || number]
      */
     sendBatch = async (...args) => {
-        const lengthArgs = args.length;
-        const dataJsonRpc = args.map(it => {
+        const bodyJsonRpc = args.map(it => {
             this.#incrementNextId();
             return {
                 jsonrpc: "2.0",
@@ -128,10 +122,8 @@ class Provider {
             }
         });
 
-        const bodyJsonRpc = JSON.stringify(dataJsonRpc);
-
         if (this.#typeNetwork == "http") {
-            const res = await this.#provider.send(bodyJsonRpc);
+            const res = await this.client.client.request(bodyJsonRpc);
             return res.map((it, index) => {
                 if (it.error !== undefined) throw it.error;
                 const returnFormat = args[index][2];
@@ -143,40 +135,19 @@ class Provider {
         if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
             return await new Promise((resolve) => {
                 const handle = (res) => {
-                    try {
-                        const parseRes = JSON.parse(res);
-                        if (parseRes.length == lengthArgs) {
-                            const resFilter = parseRes.filter((it1, index) => {
-                                const it2 = dataJsonRpc[index];
-                                if (it1.id != it2.id) return false;
-                                if (it1.error !== undefined) throw it1.error;
-                                return true;
-                            });
+                    const map = res.map((it1, index) => {
+                        if (it1.error !== undefined) throw it1.error;
+                        const returnFormat = args[index][2];
+                        if (returnFormat === undefined) return it1.result;
+                        return returnFormat(it1.result);
+                    });
 
-                            if (resFilter.length == lengthArgs) {
-                                const map = parseRes.map((it1, index) => {
-                                    const returnFormat = args[index][2];
-                                    if (returnFormat === undefined) return it1.result;
-                                    return returnFormat(it1.result);
-                                });
-
-                                resolve(map);
-                                this.#provider.client.removeListener("message", handle);
-                            }
-                        }
-                    } catch (err) {
-                        this.#handleErrorOther(err);
-                    }
+                    resolve(map);
                 }
 
-                this.#provider.client.on("message", handle);
-                this.#provider.send(bodyJsonRpc);
+                this.client.client.request(bodyJsonRpc).then(handle);
             });
         }
-    }
-
-    isReady = async () => {
-        return await this.#provider.isReady();
     }
 }
 
