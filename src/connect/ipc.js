@@ -1,30 +1,16 @@
-const net = require("node:net");
+const { IpcProvider } = require("web3-providers-ipc");
 
 class Main {
-    constructor(url = "") {
-        this.client = this.connect(url);
-    }
-
-    connect = (url) => {
-        const client = net.createConnection(url);
-        client.on("close", () => {
-            setTimeout(() => {
-                client.destroy();
-                this.client = net.createConnection(url);
-            }, 2000)
-        });
-
-        return client;
+    constructor(url = "", socketOpt = {}, reconnectOpt = {}) {
+        this.client = new IpcProvider(url, socketOpt, reconnectOpt);
+        this.client._getChainId = () => new Promise(res => res([])); // overrides because is calling without agreement
+        this.client._getAccounts = () => new Promise(res => res([])); // overrides because is calling without agreement
     }
 
     isReady = async () => {
         return new Promise(resolve => {
-            this.client.on("ready", () => resolve(true));
+            this.client.once("connect", () => resolve(true));
         })
-    }
-
-    send = (data) => {
-        this.client.send(data);
     }
 }
 

@@ -1,31 +1,16 @@
-const Websocket = require("ws");
+const { WebSocketProvider } = require("web3-providers-ws");
 
 class Main {
-    constructor(url = "") {
-        this.client = this.connect(url);
-    }
-
-    connect = (url) => {
-        const args = [url, { handshakeTimeout: 20000 }];
-        const client = new Websocket(...args);
-        client.on("close", () => {
-            setTimeout(() => {
-                client.terminate();
-                this.client = new Websocket(...args);
-            }, 2000)
-        });
-
-        return client;
+    constructor(url = "", socketOpt = {}, reconnectOpt = {}) {
+        this.client = new WebSocketProvider(url, socketOpt, reconnectOpt);
+        this.client._getChainId = () => new Promise(res => res([])); // overrides because is calling without agreement
+        this.client._getAccounts = () => new Promise(res => res([])); // overrides because is calling without agreement
     }
 
     isReady = async () => {
         return new Promise(resolve => {
-            this.client.once("open", () => resolve(true));
+            this.client.once("connect", () => resolve(true));
         })
-    }
-
-    send = (data) => {
-        this.client.send(data);
     }
 }
 
