@@ -20,8 +20,8 @@ class Main {
         this.eth_getBlockByHash = (hash = "", txDetail = true) => ["eth_getBlockByHash", [hash, txDetail]];
         this.eth_getBlockByNumber = (quantityOrTag = "latest", txDetail = true) => ["eth_getBlockByNumber", [quantityOrTag, txDetail]];
         this.eth_getBlockReceipts = (quantityOrTag = "latest") => ["eth_getBlockReceipts", [quantityOrTag]];
-        this.eth_getBlockTransactionCountByHash = (hash = "") => ["eth_getBlockTransactionCountByHash", [hash], BigInt];
-        this.eth_getBlockTransactionCountByNumber = (quantityOrTag = "latest") => ["eth_getBlockTransactionCountByNumber", [quantityOrTag], BigInt];
+        this.eth_getBlockTransactionCountByHash = (hash = "") => ["eth_getBlockTransactionCountByHash", [hash], parseInt];
+        this.eth_getBlockTransactionCountByNumber = (quantityOrTag = "latest") => ["eth_getBlockTransactionCountByNumber", [quantityOrTag], parseInt];
         this.eth_getCode = (address = "", quantityOrTag = "") => ["eth_getCode", [address, quantityOrTag]];
         this.eth_getFilterChanges = (filterId = "") => ["eth_getFilterChanges", [filterId]];
         this.eth_getFilterLogs = (filterId = "") => ["eth_getFilterLogs", [filterId]];
@@ -31,12 +31,12 @@ class Main {
         this.eth_getTransactionByBlockHashAndIndex = (blockHash = "", index = "0") => ["eth_getTransactionByBlockHashAndIndex", [blockHash, index]];
         this.eth_getTransactionByBlockNumberAndIndex = (quantityOrTag = "latest", index = "0") => ["eth_getTransactionByBlockNumberAndIndex", [quantityOrTag, index]];
         this.eth_getTransactionByHash = (hash = "") => ["eth_getTransactionByHash", [hash]];
-        this.eth_getTransactionCount = (address = "", quantityOrTag = "latest") => ["eth_getTransactionCount", [address, quantityOrTag], BigInt];
+        this.eth_getTransactionCount = (address = "", quantityOrTag = "latest") => ["eth_getTransactionCount", [address, quantityOrTag], parseInt];
         this.eth_getTransactionReceipt = (hash = "") => ["eth_getTransactionReceipt", [hash]];
-        this.eth_getUncleCountByBlockHash = (hash = "") => ["eth_getUncleCountByBlockHash", [hash], BigInt];
-        this.eth_getUncleCountByBlockNumber = (hexNumber = "") => ["eth_getUncleCountByBlockNumber", [hexNumber], BigInt];
-        this.eth_hashrate = () => ["eth_hashrate", [], BigInt];
-        this.eth_maxPriorityFeePerGas = () => ["eth_maxPriorityFeePerGas", [], BigInt];
+        this.eth_getUncleCountByBlockHash = (hash = "") => ["eth_getUncleCountByBlockHash", [hash], parseInt];
+        this.eth_getUncleCountByBlockNumber = (hexNumber = "") => ["eth_getUncleCountByBlockNumber", [hexNumber], parseInt];
+        this.eth_hashrate = () => ["eth_hashrate", [], parseInt];
+        this.eth_maxPriorityFeePerGas = () => ["eth_maxPriorityFeePerGas", [], parseInt];
         this.eth_mining = () => ["eth_mining", []];
         this.eth_newBlockFilter = () => ["eth_newBlockFilter", []];
         this.eth_newFilter = (obj = InterfaceNewFilter) => ["eth_newFilter", [obj]];
