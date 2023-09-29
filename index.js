@@ -6,7 +6,6 @@ const InterfaceReconnectOpt = { autoReconnect: true, delay: 500, maxAttempts: Nu
 
 class Provider {
     client;
-    #typeNetwork;
     #nextId = 0;
     #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
 
@@ -18,18 +17,15 @@ class Provider {
     constructor(urlRpc = "", socketOpt = {}, reconnectOpt = InterfaceReconnectOpt, handleErrorOther = (err) => { err }) {
         try {
             if (urlRpc.startsWith("http")) {
-                this.#typeNetwork = "http";
                 this.client = new ConnectHttp(urlRpc, socketOpt);
                 this.subscribe = () => { throw `network type http not support subscribe` };
             }
 
             if (urlRpc.startsWith("ws")) {
-                this.#typeNetwork = "ws";
                 this.client = new ConnectWs(urlRpc, socketOpt, reconnectOpt);
             }
 
             if (urlRpc.endsWith(".ipc")) {
-                this.#typeNetwork = "ipc";
                 this.client = new ConnectIpc(urlRpc, socketOpt, reconnectOpt);
             }
         } catch (err) {
@@ -40,6 +36,12 @@ class Provider {
     #incrementNextId = () => {
         if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
         return this.#nextId += 1; // increment id jsonrpc
+    }
+
+    #returnSend = (result, returnFormat) => {
+        if (result.error !== undefined) throw result.error.message;
+        if (returnFormat === undefined) return result.result;
+        return returnFormat(result.result);
     }
 
     /**
@@ -89,20 +91,9 @@ class Provider {
      */
     send = async (args = []) => {
         const id = this.#incrementNextId();
-        const returnFormat = args[2];
         const bodyJsonRpc = { jsonrpc: "2.0", id, method: args[0], params: args[1] };
-        let result = {};
-        if (this.#typeNetwork == "http") {
-            result = await this.client.client.request(bodyJsonRpc);
-        }
-
-        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            result = await this.client.client.request(bodyJsonRpc);
-        }
-
-        if (result.error !== undefined) throw result.error;
-        if (returnFormat === undefined) return result.result;
-        return returnFormat(result.result);
+        const result = await this.client.client.request(bodyJsonRpc);
+        return this.#returnSend(result, args[2]);
     }
 
     /**
@@ -122,32 +113,8 @@ class Provider {
             }
         });
 
-        if (this.#typeNetwork == "http") {
-            const res = await this.client.client.request(bodyJsonRpc);
-            return res.map((it, index) => {
-                if (it.error !== undefined) throw it.error;
-                const returnFormat = args[index][2];
-                if (returnFormat === undefined) return it.result;
-                return returnFormat(it.result);
-            });
-        }
-
-        if (this.#typeNetwork == "ws" || this.#typeNetwork == "ipc") {
-            return await new Promise((resolve) => {
-                const handle = (res) => {
-                    const map = res.map((it1, index) => {
-                        if (it1.error !== undefined) throw it1.error;
-                        const returnFormat = args[index][2];
-                        if (returnFormat === undefined) return it1.result;
-                        return returnFormat(it1.result);
-                    });
-
-                    resolve(map);
-                }
-
-                this.client.client.request(bodyJsonRpc).then(handle);
-            });
-        }
+        const res = await this.client.client.request(bodyJsonRpc);
+        return res.map((it, index) => this.#returnSend(it, args[index][2]));
     }
 }
 
