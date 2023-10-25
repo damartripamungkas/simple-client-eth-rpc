@@ -19,22 +19,48 @@
 <br>
 
 ### 📖 Description :
+
 This very light package was created for those of you who want to interact directly with the EVM Ethereum blockchain according to the documentation.
+
 - support network http
 - support network websocket
 - support network ipc
 
-### 💻 Step to install : 
+### 💻 Step to install :
+
 ```
-npm install simple-client-eth-rpc
+npm install --production simple-client-eth-rpc
 ```
 
 ### ✏️ Example :
-```javascript
-const { Provider, EthNameSpace } = require("simple-client-eth-rpc")
-const provider = new Provider("https://bscrpc.com")
-const ethName = new EthNameSpace()
 
+#### Typescript
+
+```javascript
+import { Provider, EthNameSpace } from "simple-client-eth-rpc";
+const provider = new Provider("https://bscrpc.com");
+const ethName = new EthNameSpace();
+```
+
+#### ESM (import)
+
+```javascript
+import { Provider, EthNameSpace } from "simple-client-eth-rpc";
+const provider = new Provider("https://bscrpc.com");
+const ethName = new EthNameSpace();
+```
+
+#### CommonJs (require)
+
+```javascript
+const { Provider, EthNameSpace } = require("simple-client-eth-rpc");
+const provider = new Provider("https://bscrpc.com");
+const ethName = new EthNameSpace();
+```
+
+#### Usage
+
+```javascript
 (async () => {
     await provider.isReady() // must be run before execute any function
 
@@ -61,9 +87,11 @@ const ethName = new EthNameSpace()
 ```
 
 ### 🧾 Pre-Requisistes :
+
 ```
-node.js
+node.js >= 18
 ```
- 
+
 ### 📝 License :
+
 Licensed under the [MIT License](./LICENSE).
