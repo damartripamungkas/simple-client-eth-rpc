@@ -1,10 +1,11 @@
 {
   "name": "simple-client-eth-rpc",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "Simple client rpc for handle eth namespace",
-  "main": "index.js",
   "scripts": {
-    "test": "node ./test/test.js"
+    "test": "npm run build:tsc && node ./test/test.js",
+    "build:tsup": "rm -rf dist/ && tsup-node ./src/index.ts --format cjs,esm --dts",
+    "build:tsc": "rm -rf dist/ && tsc"
   },
   "homepage": "https://github.com/damartripamungkas/simple-client-eth-rpc",
   "repository": {
@@ -27,14 +28,21 @@
     "simple-rpc-eth",
     "simple-client-eth-rpc"
   ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "author": "damartripamungkas",
   "license": "MIT",
   "dependencies": {
-    "node-fetch-commonjs": "^3.3.2",
     "web3-providers-ipc": "^4.0.7-dev.b8fa712.0",
     "web3-providers-ws": "^4.0.7-dev.b8fa712.0"
   },
   "devDependencies": {
-    "eslint": "^8.50.0"
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.52.0"
   }
 }
