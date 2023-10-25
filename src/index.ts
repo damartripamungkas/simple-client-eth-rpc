@@ -16,14 +16,15 @@ interface InterfaceSend {
 }
 
 class Provider {
-  client;
   #nextId = 0;
   #maxSafeNextId = Number.MAX_SAFE_INTEGER - 100;
+  client;
 
   /**
    *
-   * @param urlRpc url node blockchain
-   * @param handleErrorOther function to handle error other than JSON-RPC
+   * @param urlRpc url node blockchain. input string
+   * @param socketOpt option socket for network ws | ipc. input {} | null | undefined
+   * @param reconnectOpt option reconnect for network ws | ipc. input {} | null | undefined
    */
   constructor(urlRpc: string, socketOpt: object | undefined | null, reconnectOpt: InterfaceReconnectOpt | NonNullable<object> | undefined | null) {
     socketOpt = socketOpt === null || socketOpt === undefined ? {} : socketOpt;

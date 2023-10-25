@@ -31,26 +31,26 @@ var eth_default = class {
     this.eth_unsubscribe = (subscriptionId) => this.buildFormat("eth_unsubscribe", subscriptionId, null);
     this.eth_blockNumber = () => this.buildFormat("eth_blockNumber", [], parseInt);
     this.eth_chainId = () => this.buildFormat("eth_chainId", [], parseInt);
-    this.eth_call = (tx, quantityOrTag) => this.buildFormat("eth_call", [tx, quantityOrTag], null);
+    this.eth_call = (tx, blockNumber) => this.buildFormat("eth_call", [tx, blockNumber], null);
     this.eth_estimateGas = (tx) => this.buildFormat("eth_estimateGas", [tx], parseInt);
     this.eth_feeHistory = (blockCount, latestBlock, rewardPercentiles) => this.buildFormat("eth_feeHistory", [blockCount, latestBlock, rewardPercentiles], null);
     this.eth_gasPrice = () => this.buildFormat("eth_gasPrice", [], parseInt);
     this.eth_getBalance = (address, tag) => this.buildFormat("eth_getBalance", [address, tag], parseInt);
     this.eth_getBlockByHash = (hash, txDetail) => this.buildFormat("eth_getBlockByHash", [hash, txDetail], null);
-    this.eth_getBlockByNumber = (quantityOrTag, txDetail) => this.buildFormat("eth_getBlockByNumber", [quantityOrTag, txDetail], null);
-    this.eth_getBlockReceipts = (quantityOrTag) => this.buildFormat("eth_getBlockReceipts", [quantityOrTag], null);
+    this.eth_getBlockByNumber = (blockNumber, txDetail) => this.buildFormat("eth_getBlockByNumber", [blockNumber, txDetail], null);
+    this.eth_getBlockReceipts = (blockNumber) => this.buildFormat("eth_getBlockReceipts", [blockNumber], null);
     this.eth_getBlockTransactionCountByHash = (hash) => this.buildFormat("eth_getBlockTransactionCountByHash", [hash], parseInt);
-    this.eth_getBlockTransactionCountByNumber = (quantityOrTag) => this.buildFormat("eth_getBlockTransactionCountByNumber", [quantityOrTag], parseInt);
-    this.eth_getCode = (address, quantityOrTag) => this.buildFormat("eth_getCode", [address, quantityOrTag], null);
+    this.eth_getBlockTransactionCountByNumber = (blockNumber) => this.buildFormat("eth_getBlockTransactionCountByNumber", [blockNumber], parseInt);
+    this.eth_getCode = (address, blockNumber) => this.buildFormat("eth_getCode", [address, blockNumber], null);
     this.eth_getFilterChanges = (filterId) => this.buildFormat("eth_getFilterChanges", [filterId], null);
     this.eth_getFilterLogs = (filterId) => this.buildFormat("eth_getFilterLogs", [filterId], null);
     this.eth_getLogs = (filterObj) => this.buildFormat("eth_getLogs", [filterObj], null);
-    this.eth_getProof = (address, storageKeys, quantityOrTag) => this.buildFormat("eth_getProof", [address, storageKeys, quantityOrTag], null);
-    this.eth_getStorageAt = (obj) => this.buildFormat("eth_getStorageAt", [obj], null);
+    this.eth_getProof = (address, storageKeys, blockNumber) => this.buildFormat("eth_getProof", [address, storageKeys, blockNumber], null);
+    this.eth_getStorageAt = (address, position, blockNumber) => this.buildFormat("eth_getStorageAt", [address, position, blockNumber], null);
     this.eth_getTransactionByBlockHashAndIndex = (blockHash, index) => this.buildFormat("eth_getTransactionByBlockHashAndIndex", [blockHash, index], null);
-    this.eth_getTransactionByBlockNumberAndIndex = (quantityOrTag, index) => this.buildFormat("eth_getTransactionByBlockNumberAndIndex", [quantityOrTag, index], null);
+    this.eth_getTransactionByBlockNumberAndIndex = (blockNumber, index) => this.buildFormat("eth_getTransactionByBlockNumberAndIndex", [blockNumber, index], null);
     this.eth_getTransactionByHash = (hash) => this.buildFormat("eth_getTransactionByHash", [hash], null);
-    this.eth_getTransactionCount = (address, quantityOrTag) => this.buildFormat("eth_getTransactionCount", [address, quantityOrTag], parseInt);
+    this.eth_getTransactionCount = (address, blockNumber) => this.buildFormat("eth_getTransactionCount", [address, blockNumber], parseInt);
     this.eth_getTransactionReceipt = (hash) => this.buildFormat("eth_getTransactionReceipt", [hash], null);
     this.eth_getUncleCountByBlockHash = (hash) => this.buildFormat("eth_getUncleCountByBlockHash", [hash], parseInt);
     this.eth_getUncleCountByBlockNumber = (hexNumber) => this.buildFormat("eth_getUncleCountByBlockNumber", [hexNumber], parseInt);
@@ -69,11 +69,11 @@ var eth_default = class {
     this.qn_broadcastRawTransaction = (signedTx) => this.buildFormat("qn_broadcastRawTransaction", [signedTx], null);
     this.qn_getBlockWithReceipts = (hexNumber) => this.buildFormat("qn_getBlockWithReceipts", [hexNumber], null);
     this.qn_getReceipts = (hexNumber) => this.buildFormat("qn_getReceipts", [hexNumber], null);
-    this.trace_block = (quantityOrTag) => this.buildFormat("trace_block", [quantityOrTag], null);
-    this.trace_call = (obj, typeTrace, quantityOrTag) => this.buildFormat("trace_call", [obj, typeTrace, quantityOrTag], null);
-    this.trace_callMany = (typeTrace, quantityOrTag) => this.buildFormat("trace_callMany", [typeTrace, quantityOrTag], null);
+    this.trace_block = (blockNumber) => this.buildFormat("trace_block", [blockNumber], null);
+    this.trace_call = (obj, typeTrace, blockNumber) => this.buildFormat("trace_call", [obj, typeTrace, blockNumber], null);
+    this.trace_callMany = (typeTrace, blockNumber) => this.buildFormat("trace_callMany", [typeTrace, blockNumber], null);
     this.trace_filter = (obj) => this.buildFormat("trace_filter", [obj], null);
-    this.trace_replayBlockTransactions = (quantityOrTag, typeTrace) => this.buildFormat("trace_replayBlockTransactions", [quantityOrTag, typeTrace], null);
+    this.trace_replayBlockTransactions = (blockNumber, typeTrace) => this.buildFormat("trace_replayBlockTransactions", [blockNumber, typeTrace], null);
     this.trace_replayTransaction = (hash, typeTrace) => this.buildFormat("trace_replayTransaction", [hash, typeTrace], null);
     this.trace_transaction = (hash) => this.buildFormat("trace_transaction", [hash], null);
     this.txpool_content = () => this.buildFormat("txpool_content", [], null);
@@ -85,8 +85,8 @@ var eth_default = class {
     this.debug_storageRangeAt = (blockHash, txIndex, address, startKey, limit) => this.buildFormat("debug_storageRangeAt", [blockHash, txIndex, address, startKey, limit], null);
     this.debug_traceBlock = (blockRlpEncode, tracerObject) => this.buildFormat("debug_traceBlock", [blockRlpEncode, tracerObject], null);
     this.debug_traceBlockByHash = (blockHash, tracerObject) => this.buildFormat("debug_traceBlockByHash", [blockHash, tracerObject], null);
-    this.debug_traceBlockByNumber = (quantityOrTag, tracerObject) => this.buildFormat("debug_traceBlockByNumber", [quantityOrTag, tracerObject], null);
-    this.debug_traceCall = (tx, quantityOrTag, tracerObject) => this.buildFormat("debug_traceCall", [tx, quantityOrTag, tracerObject], null);
+    this.debug_traceBlockByNumber = (blockNumber, tracerObject) => this.buildFormat("debug_traceBlockByNumber", [blockNumber, tracerObject], null);
+    this.debug_traceCall = (tx, blockNumber, tracerObject) => this.buildFormat("debug_traceCall", [tx, blockNumber, tracerObject], null);
     this.debug_traceTransaction = (hash, tracerObject) => this.buildFormat("debug_traceTransaction", [hash, tracerObject], null);
   }
 };
@@ -151,8 +151,9 @@ var _nextId, _maxSafeNextId, _incrementNextId, _returnSend;
 var Provider = class {
   /**
    *
-   * @param urlRpc url node blockchain
-   * @param handleErrorOther function to handle error other than JSON-RPC
+   * @param urlRpc url node blockchain. input string
+   * @param socketOpt option socket for network ws | ipc. input {} | null | undefined
+   * @param reconnectOpt option reconnect for network ws | ipc. input {} | null | undefined
    */
   constructor(urlRpc, socketOpt, reconnectOpt) {
     __privateAdd(this, _nextId, 0);

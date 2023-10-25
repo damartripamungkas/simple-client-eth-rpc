@@ -1,378 +1,127 @@
+type TypeString0x = `0x${string}`;
+type TypeTxValue = TypeString0x | number | bigint;
+type TypeTrace = Array<"vmTrace" | "trace" | "stateDiff">;
+type TypeBlockNumber = string | "latest" | "pending";
 interface InterfaceTxObjCall {
-    to: string;
-    from: string;
-    data: string;
-    gasLimit: string;
-    gasPrice: string;
-    value: string;
+    to: TypeString0x;
+    from?: TypeString0x;
+    data?: TypeString0x;
+    gas?: TypeTxValue;
+    gasPrice?: TypeTxValue;
+    value?: TypeTxValue;
 }
 interface InterfaceGetLogs {
-    fromBlock: string;
-    toBlock: string;
-    address: string;
-    topics: string;
-    blockHash: string;
-}
-interface InterfaceGetStorageAt {
-    address: string;
-    position: string;
-    quantityOrTag: string;
+    fromBlock?: string;
+    toBlock?: string;
+    address?: TypeString0x;
+    topics?: string;
+    blockHash?: TypeString0x;
 }
 interface InterfaceNewFilter {
-    fromBlock: string;
-    toBlock: string;
-    address: string;
-    topics: string;
+    fromBlock?: TypeBlockNumber;
+    toBlock?: TypeBlockNumber;
+    address?: TypeString0x;
+    topics?: string;
 }
 interface InterfaceTraceCall {
-    from: string;
-    to: string;
-    gas: string;
-    gasPrice: string;
-    value: string;
-    data: string;
+    from?: TypeString0x;
+    to: TypeString0x;
+    gas?: TypeTxValue;
+    gasPrice?: TypeTxValue;
+    value?: TypeTxValue;
+    data?: TypeString0x;
 }
 interface InterfaceTraceFilter {
-    fromBlock: string;
-    toBlock: string;
-    fromAddress: string;
-    toAddress: string;
-    after: string;
-    count: string;
+    fromBlock?: TypeBlockNumber;
+    toBlock?: TypeBlockNumber;
+    fromAddress?: TypeString0x;
+    toAddress?: TypeString0x;
+    after?: string;
+    count?: string;
 }
 interface InterfaceTxObj {
-    to: string;
-    from: string;
-    data: string;
-    gasLimit: string;
-    gasPrice: string;
-    maxFeePerGas: string;
-    maxPriorityFeePerGas: string;
-    lastBaseFeePerGas: string;
-    value: string;
-    nonce: string;
-    chainId: string;
+    to?: TypeString0x;
+    from?: TypeString0x;
+    data?: TypeString0x;
+    gasLimit?: TypeTxValue;
+    gasPrice?: TypeTxValue;
+    maxFeePerGas?: TypeTxValue;
+    maxPriorityFeePerGas?: TypeTxValue;
+    value?: TypeTxValue;
+    nonce?: TypeTxValue;
+    chainId?: TypeTxValue;
 }
 interface InterfaceTraceObject {
-    tracer: "callTracer";
+    tracer: "callTracer" | "prestateTracer";
     tracerConfig: {
         onlyTopCall: boolean;
     };
 }
-type TypeTrace = Array<"vmTrace" | "trace" | "stateDiff">;
-type TypeQuantityOrTag = string | "latest" | "pending";
+
 declare class export_default$3{
     constructor();
-    buildFormat: (...args: any) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_subscribe: (...params: any) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_unsubscribe: (subscriptionId: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_blockNumber: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_chainId: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_call: (tx: InterfaceTxObjCall | NonNullable<object>, quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_estimateGas: (tx: InterfaceTxObj | NonNullable<object>) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_feeHistory: (blockCount: string, latestBlock: string, rewardPercentiles: string[]) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_gasPrice: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBalance: (address: string, tag: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBlockByHash: (hash: string, txDetail: boolean) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBlockByNumber: (quantityOrTag: TypeQuantityOrTag, txDetail: boolean) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBlockReceipts: (quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBlockTransactionCountByHash: (hash: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getBlockTransactionCountByNumber: (quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getCode: (address: string, quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getFilterChanges: (filterId: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getFilterLogs: (filterId: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getLogs: (filterObj: InterfaceGetLogs | NonNullable<object>) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getProof: (address: string, storageKeys: string[], quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getStorageAt: (obj: InterfaceGetStorageAt | NonNullable<object>) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getTransactionByBlockHashAndIndex: (blockHash: string, index: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getTransactionByBlockNumberAndIndex: (quantityOrTag: string, index: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getTransactionByHash: (hash: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getTransactionCount: (address: string, quantityOrTag: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getTransactionReceipt: (hash: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getUncleCountByBlockHash: (hash: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_getUncleCountByBlockNumber: (hexNumber: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_hashrate: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_maxPriorityFeePerGas: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_mining: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_newBlockFilter: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_newFilter: (obj: InterfaceNewFilter | NonNullable<object>) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_newPendingTransactionFilter: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_sendRawTransaction: (signedTx: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_syncing: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    eth_uninstallFilter: (filterId: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    net_listening: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    net_peerCount: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    net_version: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    qn_broadcastRawTransaction: (signedTx: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    qn_getBlockWithReceipts: (hexNumber: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    qn_getReceipts: (hexNumber: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_block: (quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_call: (obj: InterfaceTraceCall | NonNullable<object>, typeTrace: TypeTrace, quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_callMany: (typeTrace: TypeTrace, quantityOrTag: TypeQuantityOrTag) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_filter: (obj: InterfaceTraceFilter | NonNullable<object>) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_replayBlockTransactions: (quantityOrTag: TypeQuantityOrTag, typeTrace: TypeTrace) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_replayTransaction: (hash: string, typeTrace: TypeTrace) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    trace_transaction: (hash: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    txpool_content: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    txpool_inspect: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    txpool_status: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    web3_clientVersion: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    web3_sha3: (data: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_getBadBlocks: () => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_storageRangeAt: (blockHash: string, txIndex: string, address: string, startKey: string, limit: string) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_traceBlock: (blockRlpEncode: string, tracerObject: InterfaceTraceObject) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_traceBlockByHash: (blockHash: string, tracerObject: InterfaceTraceObject) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_traceBlockByNumber: (quantityOrTag: TypeQuantityOrTag, tracerObject: InterfaceTraceObject) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_traceCall: (tx: InterfaceTraceCall | NonNullable<object>, quantityOrTag: TypeQuantityOrTag, tracerObject: InterfaceTraceObject) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
-    debug_traceTransaction: (hash: string, tracerObject: InterfaceTraceObject) => {
-        method: any;
-        params: any;
-        formatReturn: any;
-    };
+    buildFormat: (...args: any) => any;
+    eth_subscribe: (...params: any) => any;
+    eth_unsubscribe: (subscriptionId: string) => any;
+    eth_blockNumber: () => any;
+    eth_chainId: () => any;
+    eth_call: (tx: InterfaceTxObjCall, blockNumber: TypeBlockNumber) => any;
+    eth_estimateGas: (tx: InterfaceTxObj) => any;
+    eth_feeHistory: (blockCount: string, latestBlock: string, rewardPercentiles: string[]) => any;
+    eth_gasPrice: () => any;
+    eth_getBalance: (address: string, tag: string) => any;
+    eth_getBlockByHash: (hash: string, txDetail: boolean) => any;
+    eth_getBlockByNumber: (blockNumber: TypeBlockNumber, txDetail: boolean) => any;
+    eth_getBlockReceipts: (blockNumber: TypeBlockNumber) => any;
+    eth_getBlockTransactionCountByHash: (hash: string) => any;
+    eth_getBlockTransactionCountByNumber: (blockNumber: TypeBlockNumber) => any;
+    eth_getCode: (address: string, blockNumber: TypeBlockNumber) => any;
+    eth_getFilterChanges: (filterId: string) => any;
+    eth_getFilterLogs: (filterId: string) => any;
+    eth_getLogs: (filterObj: InterfaceGetLogs) => any;
+    eth_getProof: (address: string, storageKeys: string[], blockNumber: TypeBlockNumber) => any;
+    eth_getStorageAt: (address: string, position: string, blockNumber: TypeBlockNumber) => any;
+    eth_getTransactionByBlockHashAndIndex: (blockHash: string, index: string) => any;
+    eth_getTransactionByBlockNumberAndIndex: (blockNumber: TypeBlockNumber, index: string) => any;
+    eth_getTransactionByHash: (hash: string) => any;
+    eth_getTransactionCount: (address: string, blockNumber: TypeBlockNumber) => any;
+    eth_getTransactionReceipt: (hash: string) => any;
+    eth_getUncleCountByBlockHash: (hash: string) => any;
+    eth_getUncleCountByBlockNumber: (hexNumber: string) => any;
+    eth_hashrate: () => any;
+    eth_maxPriorityFeePerGas: () => any;
+    eth_mining: () => any;
+    eth_newBlockFilter: () => any;
+    eth_newFilter: (obj: InterfaceNewFilter) => any;
+    eth_newPendingTransactionFilter: () => any;
+    eth_sendRawTransaction: (signedTx: string) => any;
+    eth_syncing: () => any;
+    eth_uninstallFilter: (filterId: string) => any;
+    net_listening: () => any;
+    net_peerCount: () => any;
+    net_version: () => any;
+    qn_broadcastRawTransaction: (signedTx: string) => any;
+    qn_getBlockWithReceipts: (hexNumber: string) => any;
+    qn_getReceipts: (hexNumber: string) => any;
+    trace_block: (blockNumber: TypeBlockNumber) => any;
+    trace_call: (obj: InterfaceTraceCall, typeTrace: TypeTrace, blockNumber: TypeBlockNumber) => any;
+    trace_callMany: (typeTrace: TypeTrace, blockNumber: TypeBlockNumber) => any;
+    trace_filter: (obj: InterfaceTraceFilter) => any;
+    trace_replayBlockTransactions: (blockNumber: TypeBlockNumber, typeTrace: TypeTrace) => any;
+    trace_replayTransaction: (hash: string, typeTrace: TypeTrace) => any;
+    trace_transaction: (hash: string) => any;
+    txpool_content: () => any;
+    txpool_inspect: () => any;
+    txpool_status: () => any;
+    web3_clientVersion: () => any;
+    web3_sha3: (data: string) => any;
+    debug_getBadBlocks: () => any;
+    debug_storageRangeAt: (blockHash: string, txIndex: string, address: string, startKey: string, limit: string) => any;
+    debug_traceBlock: (blockRlpEncode: string, tracerObject: InterfaceTraceObject) => any;
+    debug_traceBlockByHash: (blockHash: string, tracerObject: InterfaceTraceObject) => any;
+    debug_traceBlockByNumber: (blockNumber: TypeBlockNumber, tracerObject: InterfaceTraceObject) => any;
+    debug_traceCall: (tx: InterfaceTraceCall, blockNumber: TypeBlockNumber, tracerObject: InterfaceTraceObject) => any;
+    debug_traceTransaction: (hash: string, tracerObject: InterfaceTraceObject) => any;
 }
 
 declare class export_default$2{
@@ -408,8 +157,9 @@ declare class Provider {
     client: export_default$2 | export_default | export_default$1;
     /**
      *
-     * @param urlRpc url node blockchain
-     * @param handleErrorOther function to handle error other than JSON-RPC
+     * @param urlRpc url node blockchain. input string
+     * @param socketOpt option socket for network ws | ipc. input {} | null | undefined
+     * @param reconnectOpt option reconnect for network ws | ipc. input {} | null | undefined
      */
     constructor(urlRpc: string, socketOpt: object | undefined | null, reconnectOpt: InterfaceReconnectOpt | NonNullable<object> | undefined | null);
     /**
