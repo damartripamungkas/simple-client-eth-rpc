@@ -1,6 +1,6 @@
 {
   "name": "simple-client-eth-rpc",
-  "version": "2.4.1",
+  "version": "3.0.0",
   "description": "Simple client rpc for handle eth namespace",
   "scripts": {
     "test": "npm run build:tsc && node ./test/test.js",
