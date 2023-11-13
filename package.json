@@ -1,10 +1,10 @@
 {
   "name": "simple-client-eth-rpc",
-  "version": "2.4.1",
-  "description": "Simple client rpc for handle eth namespace",
+  "version": "3.0.0",
+  "description": "Simple client rpc for handle eth method",
   "scripts": {
     "test": "npm run build:tsc && node ./test/test.js",
-    "build:tsup": "rm -rf dist/ && tsup-node ./src/index.ts --format cjs,esm --dts",
+    "build:tsup": "rm -rf dist/ && tsup-node ./src/index.ts --format cjs,esm --dts --minify",
     "build:tsc": "rm -rf dist/ && tsc"
   },
   "homepage": "https://github.com/damartripamungkas/simple-client-eth-rpc",
