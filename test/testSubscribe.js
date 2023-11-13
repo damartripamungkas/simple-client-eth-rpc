@@ -1,5 +1,4 @@
-const { Provider, EthNameSpace } = require("..");
-const ethName = new EthNameSpace();
+const { Provider } = require("..");
 const provider = new Provider(
   "ws://localhost:1234",
   {},
@@ -7,22 +6,18 @@ const provider = new Provider(
     delay: 500,
     autoReconnect: true,
     maxAttempts: Number.MAX_SAFE_INTEGER,
-  }
+  },
+  null
 );
 
 (async () => {
-  /**
-   * first run function isReady before send request
-   * @returns bool
-   */
   await provider.isReady();
 
-  // test function .subscribe() and method unsubscribe
-  const buildSubscribe = ethName.eth_subscribe("newPendingTransactions", true);
-  await provider.subscribe(buildSubscribe, true, async (result, subsId) => {
+  const buildSubscribe = provider.ethSend.eth_subscribe("newPendingTransactions", true);
+  await provider.ethSend.subscribe(buildSubscribe, true, async (result, subsId) => {
     console.log(`INFO: result stream data eth_subscribe:`, result);
 
-    const unsubs = await provider.send(ethName.eth_unsubscribe(subsId));
+    const unsubs = await provider.send(provider.ethSend.eth_unsubscribe(subsId));
     console.log(`INFO: unsubscribe success with subsId: ${unsubs}`);
   });
 })();

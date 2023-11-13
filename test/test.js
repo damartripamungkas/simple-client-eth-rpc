@@ -1,18 +1,40 @@
-const { Provider, EthNameSpace } = require("..");
-const provider = new Provider("https://bscrpc.com");
-const ethName = new EthNameSpace();
+const { Provider } = require("..");
+
+/**
+ * @args_1 url rpc http/ws/ipc
+ * @args_2 socket optional for ws/ipc
+ * @args_3 reconnect optional for ws/ipc
+ * @args_4 override formatReturn eth method
+ * @returns object
+ */
+const provider = new Provider("https://bscrpc.com", null, null, [
+  { method: "eth_chainId", formatReturn: BigInt },
+  { method: "eth_blockNumber", formatReturn: BigInt },
+]);
 
 (async () => {
   /**
-   * first run function isReady before send request
+   * @info [require] first run function isReady before send request
    * @returns bool
    */
   await provider.isReady();
 
-  const getChainId = await provider.send(ethName.eth_chainId());
-  console.log(`INFO: result getChainId:`, getChainId);
+  /**
+   * @test test 1 request
+   * @info run eth_chainId
+   * @returns BigInt
+   */
+  const getChainId = await provider.ethSend.eth_chainId();
+  console.log(`INFO: result eth_chainId:`, getChainId);
 
-  // test function .sendBatch()
-  const getBlockNumberAndChainId = await provider.sendBatch(ethName.eth_blockNumber(), ethName.eth_chainId());
-  console.log(`INFO: result getBlockNumberAndChainId:`, getBlockNumberAndChainId);
+  /**
+   * @test test multi request
+   * @info run eth_chainId, eth_blockNumber
+   * @returns Array[BigInt, BigInt]
+   */
+  const getBlockNumberAndChainId = await provider.sendBatch(
+    provider.ethBuild.eth_chainId(),
+    provider.ethBuild.eth_blockNumber()
+  );
+  console.log(`INFO: result eth_chainId, eth_blockNumber:`, getBlockNumberAndChainId);
 })();
