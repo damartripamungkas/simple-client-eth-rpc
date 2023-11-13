@@ -37,54 +37,73 @@ npm install --production simple-client-eth-rpc
 #### Typescript
 
 ```javascript
-import { Provider, EthNameSpace } from "simple-client-eth-rpc";
+import { Provider } from "simple-client-eth-rpc";
 const provider = new Provider("https://bscrpc.com");
-const ethName = new EthNameSpace();
 ```
 
 #### ESM (import)
 
 ```javascript
-import { Provider, EthNameSpace } from "simple-client-eth-rpc";
+import { Provider } from "simple-client-eth-rpc";
 const provider = new Provider("https://bscrpc.com");
-const ethName = new EthNameSpace();
 ```
 
 #### CommonJs (require)
 
 ```javascript
-const { Provider, EthNameSpace } = require("simple-client-eth-rpc");
+const { Provider } = require("simple-client-eth-rpc");
 const provider = new Provider("https://bscrpc.com");
-const ethName = new EthNameSpace();
 ```
 
 #### Usage
 
 ```javascript
+const { Provider } = require("..");
+
+/**
+ * @args_1 url rpc http/ws/ipc
+ * @args_2 socket optional for ws/ipc
+ * @args_3 reconnect optional for ws/ipc
+ * @args_4 override formatReturn eth method
+ * @returns object
+ */
+const provider = new Provider("https://bscrpc.com", null, null, [
+  { method: "eth_chainId", formatReturn: BigInt },
+  { method: "eth_blockNumber", formatReturn: BigInt },
+]);
+
 (async () => {
-    await provider.isReady() // must be run before execute any function
+  /**
+   * @info [require] first run function isReady before send request
+   * @returns bool
+   */
+  await provider.isReady();
 
-    // send 1 request
-    const getChainId = await provider.send(ethName.eth_chainId())
-    console.log(`INFO: chainid is: ${getChainId}`) // 0
+  /**
+   * @test test 1 request
+   * @info run eth_chainId
+   * @returns BigInt
+   */
+  const getChainId = await provider.ethSend.eth_chainId();
+  console.log(`INFO: result eth_chainId:`, getChainId);
 
-    // send multiple request
-    const getBlockNumberAndChainId = await provider.sendBatch(
-        ethName.eth_blockNumber(),
-        ethName.eth_chainId()
-    )
-    console.log(`INFO: blockNumber and chainId is: ${getBlockNumberAndChainId}`) // [ 0, 0 ]
-
-    // subscribe spesific event blockchain
-    await provider.subscribe(ethName.eth_subscribe("newPendingTransactions"), false, (result, subsId) => {
-        console.log("INFO: result pending transaction:", result)
-
-        // unsubscribe event blockchain
-        const unsubs = await provider.send(ethName.eth_unsubscribe(subsId));
-        console.log(`INFO: unsubscribe success with subsId: ${unsubs}`);
-    })
-})()
+  /**
+   * @test test multi request
+   * @info run eth_chainId, eth_blockNumber
+   * @returns Array[BigInt, BigInt]
+   */
+  const getBlockNumberAndChainId = await provider.sendBatch(
+    provider.ethBuild.eth_chainId(),
+    provider.ethBuild.eth_blockNumber()
+  );
+  console.log(
+    `INFO: result eth_chainId, eth_blockNumber:`,
+    getBlockNumberAndChainId
+  );
+})();
 ```
+
+full example see [here](./test)
 
 ### 🧾 Pre-Requisistes :
 
