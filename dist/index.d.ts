@@ -2,7 +2,7 @@ type TypeString0x = `0x${string}`;
 type TypeTxValue = TypeString0x | number | bigint;
 type TypeTrace = Array<"vmTrace" | "trace" | "stateDiff">;
 type TypeBlockNumber = string | "latest" | "pending";
-interface InterfaceTxObjCall {
+interface IfaceTxObjCall {
     to: TypeString0x;
     from?: TypeString0x;
     data?: TypeString0x;
@@ -10,20 +10,20 @@ interface InterfaceTxObjCall {
     gasPrice?: TypeTxValue;
     value?: TypeTxValue;
 }
-interface InterfaceGetLogs {
+interface IfaceGetLogs {
     fromBlock?: string;
     toBlock?: string;
     address?: TypeString0x;
     topics?: string;
     blockHash?: TypeString0x;
 }
-interface InterfaceNewFilter {
+interface IfaceNewFilter {
     fromBlock?: TypeBlockNumber;
     toBlock?: TypeBlockNumber;
     address?: TypeString0x;
     topics?: string;
 }
-interface InterfaceTraceCall {
+interface IfaceTraceCall {
     from?: TypeString0x;
     to: TypeString0x;
     gas?: TypeTxValue;
@@ -31,7 +31,7 @@ interface InterfaceTraceCall {
     value?: TypeTxValue;
     data?: TypeString0x;
 }
-interface InterfaceTraceFilter {
+interface IfaceTraceFilter {
     fromBlock?: TypeBlockNumber;
     toBlock?: TypeBlockNumber;
     fromAddress?: TypeString0x;
@@ -39,7 +39,7 @@ interface InterfaceTraceFilter {
     after?: string;
     count?: string;
 }
-interface InterfaceTxObj {
+interface IfaceTxObj {
     to?: TypeString0x;
     from?: TypeString0x;
     data?: TypeString0x;
@@ -51,22 +51,33 @@ interface InterfaceTxObj {
     nonce?: TypeTxValue;
     chainId?: TypeTxValue;
 }
-interface InterfaceTraceObject {
+interface IfaceTraceObject {
     tracer: "callTracer" | "prestateTracer";
     tracerConfig: {
         onlyTopCall: boolean;
     };
 }
+interface IfaceReconnectOpt {
+    autoReconnect?: boolean | true;
+    delay?: number | 500;
+    maxAttempts?: number;
+}
+interface IfaceSend {
+    method: string;
+    params: string[];
+    formatReturn: any;
+}
 
 declare class export_default$3{
-    constructor();
-    buildFormat: (...args: any) => any;
+    #private;
+    constructor(funcBuildSend: any);
+    _overrideFormatReturn: (method: string, formatReturn: any) => void;
     eth_subscribe: (...params: any) => any;
     eth_unsubscribe: (subscriptionId: string) => any;
     eth_blockNumber: () => any;
     eth_chainId: () => any;
-    eth_call: (tx: InterfaceTxObjCall, blockNumber: TypeBlockNumber) => any;
-    eth_estimateGas: (tx: InterfaceTxObj) => any;
+    eth_call: (tx: IfaceTxObjCall, blockNumber: TypeBlockNumber) => any;
+    eth_estimateGas: (tx: IfaceTxObj) => any;
     eth_feeHistory: (blockCount: string, latestBlock: string, rewardPercentiles: string[]) => any;
     eth_gasPrice: () => any;
     eth_getBalance: (address: string, tag: string) => any;
@@ -78,7 +89,7 @@ declare class export_default$3{
     eth_getCode: (address: string, blockNumber: TypeBlockNumber) => any;
     eth_getFilterChanges: (filterId: string) => any;
     eth_getFilterLogs: (filterId: string) => any;
-    eth_getLogs: (filterObj: InterfaceGetLogs) => any;
+    eth_getLogs: (filterObj: IfaceGetLogs) => any;
     eth_getProof: (address: string, storageKeys: string[], blockNumber: TypeBlockNumber) => any;
     eth_getStorageAt: (address: string, position: string, blockNumber: TypeBlockNumber) => any;
     eth_getTransactionByBlockHashAndIndex: (blockHash: string, index: string) => any;
@@ -92,7 +103,7 @@ declare class export_default$3{
     eth_maxPriorityFeePerGas: () => any;
     eth_mining: () => any;
     eth_newBlockFilter: () => any;
-    eth_newFilter: (obj: InterfaceNewFilter) => any;
+    eth_newFilter: (obj: IfaceNewFilter) => any;
     eth_newPendingTransactionFilter: () => any;
     eth_sendRawTransaction: (signedTx: string) => any;
     eth_syncing: () => any;
@@ -104,9 +115,9 @@ declare class export_default$3{
     qn_getBlockWithReceipts: (hexNumber: string) => any;
     qn_getReceipts: (hexNumber: string) => any;
     trace_block: (blockNumber: TypeBlockNumber) => any;
-    trace_call: (obj: InterfaceTraceCall, typeTrace: TypeTrace, blockNumber: TypeBlockNumber) => any;
+    trace_call: (obj: IfaceTraceCall, typeTrace: TypeTrace, blockNumber: TypeBlockNumber) => any;
     trace_callMany: (typeTrace: TypeTrace, blockNumber: TypeBlockNumber) => any;
-    trace_filter: (obj: InterfaceTraceFilter) => any;
+    trace_filter: (obj: IfaceTraceFilter) => any;
     trace_replayBlockTransactions: (blockNumber: TypeBlockNumber, typeTrace: TypeTrace) => any;
     trace_replayTransaction: (hash: string, typeTrace: TypeTrace) => any;
     trace_transaction: (hash: string) => any;
@@ -117,11 +128,11 @@ declare class export_default$3{
     web3_sha3: (data: string) => any;
     debug_getBadBlocks: () => any;
     debug_storageRangeAt: (blockHash: string, txIndex: string, address: string, startKey: string, limit: string) => any;
-    debug_traceBlock: (blockRlpEncode: string, tracerObject: InterfaceTraceObject) => any;
-    debug_traceBlockByHash: (blockHash: string, tracerObject: InterfaceTraceObject) => any;
-    debug_traceBlockByNumber: (blockNumber: TypeBlockNumber, tracerObject: InterfaceTraceObject) => any;
-    debug_traceCall: (tx: InterfaceTraceCall, blockNumber: TypeBlockNumber, tracerObject: InterfaceTraceObject) => any;
-    debug_traceTransaction: (hash: string, tracerObject: InterfaceTraceObject) => any;
+    debug_traceBlock: (blockRlpEncode: string, tracerObject: IfaceTraceObject) => any;
+    debug_traceBlockByHash: (blockHash: string, tracerObject: IfaceTraceObject) => any;
+    debug_traceBlockByNumber: (blockNumber: TypeBlockNumber, tracerObject: IfaceTraceObject) => any;
+    debug_traceCall: (tx: IfaceTraceCall, blockNumber: TypeBlockNumber, tracerObject: IfaceTraceObject) => any;
+    debug_traceTransaction: (hash: string, tracerObject: IfaceTraceObject) => any;
 }
 
 declare class export_default$2{
@@ -142,26 +153,21 @@ declare class export_default{
     isReady: () => Promise<boolean>;
 }
 
-interface InterfaceReconnectOpt {
-    autoReconnect: boolean | true;
-    delay: number | 500;
-    maxAttempts: number;
-}
-interface InterfaceSend {
-    method: string;
-    params: string[];
-    formatReturn: any;
-}
 declare class Provider {
     #private;
-    client: export_default$2 | export_default | export_default$1;
+    client: export_default$2 | export_default$1 | export_default;
+    ethBuild: export_default$3;
+    ethSend: export_default$3;
     /**
      *
-     * @param urlRpc url node blockchain. input string
-     * @param socketOpt option socket for network ws | ipc. input {} | null | undefined
-     * @param reconnectOpt option reconnect for network ws | ipc. input {} | null | undefined
+     * @param_urlRpc urlRpc url node blockchain. input string
+     * @param_socketOpt option socket for network ws | ipc. input {} | null | undefined
+     * @param_reconnectOpt option reconnect for network ws | ipc. input {} | null | undefined
      */
-    constructor(urlRpc: string, socketOpt: object | undefined | null, reconnectOpt: InterfaceReconnectOpt | NonNullable<object> | undefined | null);
+    constructor(urlRpc: string, socketOpt: object, reconnectOpt: IfaceReconnectOpt, overrideEthReturn: {
+        method: string;
+        formatReturn: any;
+    }[]);
     /**
      *
      * @returns when "true" is ready
@@ -169,36 +175,36 @@ declare class Provider {
     isReady: () => Promise<boolean>;
     /**
      *
-     * @param {*} payload object or array object JSON-RPC request
+     * @paramPayload payload object or array object JSON-RPC request
      * @returns result without handling error
      */
     request: (payload: object | [
     ]) => Promise<any>;
     /**
      *
-     * @param {*} args format: [method, params]
-     * @param {*} args example: { method: "eth_subscribe", params: ["newPendingTransactions"], formatReturn: null }
+     * @paramArgsFormat { method: "", params: [], formatReturn: Function | null | undefined }
+     * @paramArgsExample { method: "eth_subscribe", params: ["newPendingTransactions"], formatReturn: null }
      * @callback res = callback(result, subsId = subscription id)
      */
-    subscribe: (args: InterfaceSend, reconnect: boolean, callbackRes: (res: any, subsId: string) => void) => Promise<void>;
+    subscribe: (args: IfaceSend, reconnect: boolean, callbackRes: (res: any, subsId: string) => void) => Promise<void>;
     /**
      *
-     * @param {*} args format: { method: "", params: [], formatReturn: Function | null | undefined }
-     * @param {*} args example: { method: "eth_chainId", params: [], formatReturn: parseInt }
+     * @paramArgsFormat { method: "", params: [], formatReturn: Function | null | undefined }
+     * @paramArgsExample { method: "eth_chainId", params: [], formatReturn: parseInt }
      * @returns any
      */
-    send: (args: InterfaceSend) => Promise<any>;
+    send: (args: IfaceSend) => Promise<any>;
     /**
      *
-     * @param {*} args format: { method: "", params: [], formatReturn: Function | null | undefined }, { method: "", params: [], formatReturn: Function | null | undefined }
-     * @param {*} args example: { method: "eth_chainId", params: [], formatReturn: parseInt }, { method: "eth_blockNumber", params: [], formatReturn: parseInt }
+     * @paramArgsFormat { method: "", params: [], formatReturn: Function | null | undefined }, { method: "", params: [], formatReturn: Function | null | undefined }
+     * @paramArgsExample { method: "eth_chainId", params: [], formatReturn: parseInt }, { method: "eth_blockNumber", params: [], formatReturn: parseInt }
      * @returns any[]
      */
-    sendBatch: (...args: Array<InterfaceSend>) => Promise<any[]>;
+    sendBatch: (...args: Array<IfaceSend>) => Promise<any[]>;
 }
+
 declare const _default: {
-    EthNameSpace: typeof export_default$3;
     Provider: typeof Provider;
 };
 
-export { export_default$3 as EthNameSpace, Provider, _default as default };
+export { Provider, _default as default };
