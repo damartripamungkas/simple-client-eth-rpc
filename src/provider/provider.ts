@@ -50,11 +50,6 @@ class Provider {
     });
   }
 
-  #incrementNextId = () => {
-    if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
-    return (this.#nextId += 1); // increment id jsonrpc
-  };
-
   #returnSend = (result: any, returnFormat: (args: any) => any) => {
     if (result.error !== undefined) throw result.error.message;
     if (returnFormat === null || returnFormat === undefined) return result.result;
@@ -62,7 +57,16 @@ class Provider {
   };
 
   /**
-   *
+   * @info generate id for next request JSON-RPC
+   * @returns number
+   */
+  incrementNextId = () => {
+    if (this.#nextId >= this.#maxSafeNextId) this.#nextId = 0;
+    return (this.#nextId += 1); // increment id jsonrpc
+  };
+
+  /**
+   * @info [REQUIRE] must be call first before run other method
    * @returns when "true" is ready
    */
   isReady = async () => {
@@ -107,7 +111,7 @@ class Provider {
    * @returns any
    */
   send = async (args: IfaceSend): Promise<any> => {
-    const id = this.#incrementNextId();
+    const id = this.incrementNextId();
     const bodyJsonRpc = { jsonrpc: "2.0", id, method: args.method, params: args.params };
     const result = await this.client.client.request(bodyJsonRpc);
     return this.#returnSend(result, args.formatReturn);
@@ -121,7 +125,7 @@ class Provider {
    */
   sendBatch = async (...args: Array<IfaceSend>): Promise<any[]> => {
     const bodyJsonRpc = args.map((it) => {
-      this.#incrementNextId();
+      this.incrementNextId();
       return { jsonrpc: "2.0", id: this.#nextId, method: it.method, params: it.params };
     });
 
