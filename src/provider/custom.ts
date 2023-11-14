@@ -12,15 +12,23 @@ export default class {
     this.#sendBatch = sendBatch;
   }
 
-  getGasPriceLevel = async () => {
-    const { transactions } = await this.#ethSend.eth_getBlockByNumber("latest", false);
-    const arrGasPrice = transactions.map((it: any) => BigInt(it.gasPrice));
-    const totalValGasPrice = arrGasPrice.reduce((total: any, nilai: any) => total + nilai);
+  getGasPriceLevel = async (blockNumber: string) => {
+    const { transactions } = await this.#ethSend.eth_getBlockByNumber(blockNumber, true);
+    const arrGasPrice = transactions.map((it: any) => it.gasPrice);
     const lengthArrGasPrice = arrGasPrice.length;
     return {
-      veryHigh: arrGasPrice[0], // BigInt
-      average: totalValGasPrice / lengthArrGasPrice, // BigInt
-      veryLow: arrGasPrice[lengthArrGasPrice - 1], // BigInt
+      get all() {
+        return arrGasPrice.reduce((acc: any, cur: any) => BigInt(acc) + BigInt(cur), 0);
+      },
+      get top() {
+        return BigInt(arrGasPrice[0]);
+      },
+      get mid() {
+        return BigInt(arrGasPrice[lengthArrGasPrice / 2]);
+      },
+      get bottom() {
+        return BigInt(arrGasPrice[lengthArrGasPrice - 1]);
+      },
     };
   };
 
