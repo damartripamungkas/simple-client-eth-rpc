@@ -67,8 +67,11 @@ interface IfaceSend {
     params: string[];
     formatReturn: any;
 }
+interface InterfaceCallback {
+    (...args: any): void;
+}
 
-declare class export_default$3{
+declare class export_default$4{
     #private;
     constructor(funcBuildSend: any);
     _overrideFormatReturn: (method: string, formatReturn: any) => void;
@@ -135,10 +138,16 @@ declare class export_default$3{
     debug_traceTransaction: (hash: string, tracerObject: IfaceTraceObject) => any;
 }
 
-declare class export_default$2{
+declare class export_default$3{
     client: any;
     constructor(url: string, socketOpt: object);
     isReady: () => boolean;
+}
+
+declare class export_default$2{
+    client: any;
+    constructor(url: string, socketOpt: object, reconnectOpt: object);
+    isReady: () => Promise<boolean>;
 }
 
 declare class export_default$1{
@@ -148,16 +157,26 @@ declare class export_default$1{
 }
 
 declare class export_default{
-    client: any;
-    constructor(url: string, socketOpt: object, reconnectOpt: object);
-    isReady: () => Promise<boolean>;
+    #private;
+    constructor(initEthSend: any, initEthBuild: any, sendBatch: any);
+    getGasPriceLevel: (blockNumber: string) => Promise<{
+        readonly all: any;
+        readonly top: bigint;
+        readonly mid: bigint;
+        readonly bottom: bigint;
+    }>;
+    isSmartContract: (address: string) => Promise<any>;
+    waitTransactionReceipt: (hash: string, intervalMs: number | 2500) => Promise<any>;
+    batchWaitTransactionReceipt: (hash: string[], intervalMs: number | 2500, callbackRes: InterfaceCallback) => Promise<void>;
+    batchSendRawTransaction: (signTx: string[]) => Promise<any>;
 }
 
 declare class Provider {
     #private;
-    client: export_default$2 | export_default$1 | export_default;
-    ethBuild: export_default$3;
-    ethSend: export_default$3;
+    client: export_default$3 | export_default$2 | export_default$1;
+    ethBuild: export_default$4;
+    ethSend: export_default$4;
+    customSend: export_default;
     /**
      *
      * @param_urlRpc urlRpc url node blockchain. input string
@@ -169,7 +188,12 @@ declare class Provider {
         formatReturn: any;
     }[]);
     /**
-     *
+     * @info generate id for next request JSON-RPC
+     * @returns number
+     */
+    incrementNextId: () => number;
+    /**
+     * @info [REQUIRE] must be call first before run other method
      * @returns when "true" is ready
      */
     isReady: () => Promise<boolean>;
