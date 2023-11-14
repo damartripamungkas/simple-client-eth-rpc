@@ -2,6 +2,7 @@ import EthBuild from "./eth";
 import ConnectHttp from "../connect/http";
 import ConnectIpc from "../connect/ipc";
 import ConnectWs from "../connect/ws";
+import CustomSend from "./custom";
 import { IfaceSend, IfaceReconnectOpt } from "./iface";
 
 class Provider {
@@ -10,6 +11,7 @@ class Provider {
   client;
   ethBuild;
   ethSend;
+  customSend;
 
   /**
    *
@@ -48,6 +50,8 @@ class Provider {
       this.ethBuild._overrideFormatReturn(method, formatReturn);
       this.ethSend._overrideFormatReturn(method, formatReturn);
     });
+
+    this.customSend = new CustomSend(this.ethSend, this.ethBuild, this.sendBatch);
   }
 
   #returnSend = (result: any, returnFormat: (args: any) => any) => {

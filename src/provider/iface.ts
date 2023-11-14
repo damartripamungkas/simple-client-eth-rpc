@@ -74,3 +74,7 @@ export interface IfaceSend {
   params: string[];
   formatReturn: any;
 }
+
+export interface InterfaceCallback {
+  (...args: any): void;
+}
