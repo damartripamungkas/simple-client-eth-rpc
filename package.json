@@ -4,7 +4,7 @@
   "description": "Simple client rpc for handle eth namespace",
   "scripts": {
     "test": "npm run build:tsc && node ./test/test.js",
-    "build:tsup": "rm -rf dist/ && tsup-node ./src/index.ts --format cjs,esm --dts",
+    "build:tsup": "rm -rf dist/ && tsup ./src/index.ts --format cjs,esm --dts",
     "build:tsc": "rm -rf dist/ && tsc"
   },
   "homepage": "https://github.com/damartripamungkas/simple-client-eth-rpc",
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
-    "eslint": "^8.52.0"
+    "eslint": "^8.52.0",
+    "typescript": "^5.2.2"
   }
 }
