@@ -100,6 +100,14 @@ const provider = new Provider("https://bscrpc.com", null, null, [
     `INFO: result eth_chainId, eth_blockNumber:`,
     getBlockNumberAndChainId
   );
+
+  /**
+   * @test custom send eth
+   * @info get gasPriceLevel in spesific block
+   * @returns Object{ all, top, mid, bottom }
+   */
+  const getGasPriceLevel = await provider.customSend.getGasPriceLevel();
+  console.log(`INFO: result gasprice level top: ${getGasPriceLevel.top}`);
 })();
 ```
 
