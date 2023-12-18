@@ -19,13 +19,14 @@ var __privateSet = (obj, member, value, setter) => {
 
 // src/provider/eth.ts
 var _buildSend;
-var eth_default = class {
+var Main = class {
   constructor(funcBuildSend) {
     __privateAdd(this, _buildSend, void 0);
     this._overrideFormatReturn = (method, formatReturn) => {
       const mockupOnlyForTypescript = { eth_chainId: this.eth_chainId };
       this[method] = (...args) => __privateGet(this, _buildSend).call(this, method, args === void 0 ? [] : args, formatReturn);
     };
+    this._eth = (method, params, formatReturn) => __privateGet(this, _buildSend).call(this, method, params, formatReturn);
     this.eth_subscribe = (...params) => __privateGet(this, _buildSend).call(this, "eth_subscribe", params, null);
     this.eth_unsubscribe = (subscriptionId) => __privateGet(this, _buildSend).call(this, "eth_unsubscribe", subscriptionId, null);
     this.eth_blockNumber = () => __privateGet(this, _buildSend).call(this, "eth_blockNumber", [], parseInt);
@@ -91,6 +92,7 @@ var eth_default = class {
   }
 };
 _buildSend = new WeakMap();
+var eth_default = Main;
 
 // src/connect/http.ts
 var http_default = class {

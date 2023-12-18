@@ -1,6 +1,6 @@
 import { TypeBlockNumber, TypeTrace, IfaceGetLogs, IfaceNewFilter, IfaceTraceCall, IfaceTraceFilter, IfaceTraceObject, IfaceTxObj, IfaceTxObjCall } from "./iface";
 
-export default class {
+class Main {
   #buildSend: any;
   constructor(funcBuildSend: any) {
     this.#buildSend = funcBuildSend;
@@ -11,6 +11,7 @@ export default class {
     this[method as keyof typeof mockupOnlyForTypescript] = (...args: any) => this.#buildSend(method, args === undefined ? [] : args, formatReturn);
   };
 
+  _eth = (method: string, params: any[], formatReturn?: any) => this.#buildSend(method, params, formatReturn);
   eth_subscribe = (...params: any) => this.#buildSend("eth_subscribe", params, null);
   eth_unsubscribe = (subscriptionId: string) => this.#buildSend("eth_unsubscribe", subscriptionId, null);
   eth_blockNumber = () => this.#buildSend("eth_blockNumber", [], parseInt);
@@ -73,3 +74,5 @@ export default class {
   debug_traceCall = (tx: IfaceTraceCall, blockNumber: TypeBlockNumber, tracerObject: IfaceTraceObject) => this.#buildSend("debug_traceCall", [tx, blockNumber, tracerObject], null);
   debug_traceTransaction = (hash: string, tracerObject: IfaceTraceObject) => this.#buildSend("debug_traceTransaction", [hash, tracerObject], null);
 }
+
+export default Main;

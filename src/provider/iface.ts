@@ -1,12 +1,11 @@
-export type TypeString0x = `0x${string}`;
-export type TypeTxValue = TypeString0x | number | bigint;
+export type TypeTxValue = string | number | bigint;
 export type TypeTrace = Array<"vmTrace" | "trace" | "stateDiff">;
 export type TypeBlockNumber = string | "latest" | "pending";
 
 export interface IfaceTxObjCall {
-  to: TypeString0x;
-  from?: TypeString0x;
-  data?: TypeString0x;
+  to: string;
+  from?: string;
+  data?: string;
   gas?: TypeTxValue;
   gasPrice?: TypeTxValue;
   value?: TypeTxValue;
@@ -15,40 +14,40 @@ export interface IfaceTxObjCall {
 export interface IfaceGetLogs {
   fromBlock?: string;
   toBlock?: string;
-  address?: TypeString0x;
+  address?: string;
   topics?: string;
-  blockHash?: TypeString0x;
+  blockHash?: string;
 }
 
 export interface IfaceNewFilter {
   fromBlock?: TypeBlockNumber;
   toBlock?: TypeBlockNumber;
-  address?: TypeString0x;
+  address?: string;
   topics?: string;
 }
 
 export interface IfaceTraceCall {
-  from?: TypeString0x;
-  to: TypeString0x;
+  from?: string;
+  to: string;
   gas?: TypeTxValue;
   gasPrice?: TypeTxValue;
   value?: TypeTxValue;
-  data?: TypeString0x;
+  data?: string;
 }
 
 export interface IfaceTraceFilter {
   fromBlock?: TypeBlockNumber;
   toBlock?: TypeBlockNumber;
-  fromAddress?: TypeString0x;
-  toAddress?: TypeString0x;
+  fromAddress?: string;
+  toAddress?: string;
   after?: string;
   count?: string;
 }
 
 export interface IfaceTxObj {
-  to?: TypeString0x;
-  from?: TypeString0x;
-  data?: TypeString0x;
+  to?: string;
+  from?: string;
+  data?: string;
   gasLimit?: TypeTxValue;
   gasPrice?: TypeTxValue;
   maxFeePerGas?: TypeTxValue;
@@ -71,8 +70,8 @@ export interface IfaceReconnectOpt {
 
 export interface IfaceSend {
   method: string;
-  params: string[];
-  formatReturn: any;
+  params: any[];
+  formatReturn?: any;
 }
 
 export interface InterfaceCallback {

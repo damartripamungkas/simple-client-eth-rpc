@@ -1,11 +1,10 @@
-type TypeString0x = `0x${string}`;
-type TypeTxValue = TypeString0x | number | bigint;
+type TypeTxValue = string | number | bigint;
 type TypeTrace = Array<"vmTrace" | "trace" | "stateDiff">;
 type TypeBlockNumber = string | "latest" | "pending";
 interface IfaceTxObjCall {
-    to: TypeString0x;
-    from?: TypeString0x;
-    data?: TypeString0x;
+    to: string;
+    from?: string;
+    data?: string;
     gas?: TypeTxValue;
     gasPrice?: TypeTxValue;
     value?: TypeTxValue;
@@ -13,36 +12,36 @@ interface IfaceTxObjCall {
 interface IfaceGetLogs {
     fromBlock?: string;
     toBlock?: string;
-    address?: TypeString0x;
+    address?: string;
     topics?: string;
-    blockHash?: TypeString0x;
+    blockHash?: string;
 }
 interface IfaceNewFilter {
     fromBlock?: TypeBlockNumber;
     toBlock?: TypeBlockNumber;
-    address?: TypeString0x;
+    address?: string;
     topics?: string;
 }
 interface IfaceTraceCall {
-    from?: TypeString0x;
-    to: TypeString0x;
+    from?: string;
+    to: string;
     gas?: TypeTxValue;
     gasPrice?: TypeTxValue;
     value?: TypeTxValue;
-    data?: TypeString0x;
+    data?: string;
 }
 interface IfaceTraceFilter {
     fromBlock?: TypeBlockNumber;
     toBlock?: TypeBlockNumber;
-    fromAddress?: TypeString0x;
-    toAddress?: TypeString0x;
+    fromAddress?: string;
+    toAddress?: string;
     after?: string;
     count?: string;
 }
 interface IfaceTxObj {
-    to?: TypeString0x;
-    from?: TypeString0x;
-    data?: TypeString0x;
+    to?: string;
+    from?: string;
+    data?: string;
     gasLimit?: TypeTxValue;
     gasPrice?: TypeTxValue;
     maxFeePerGas?: TypeTxValue;
@@ -64,17 +63,18 @@ interface IfaceReconnectOpt {
 }
 interface IfaceSend {
     method: string;
-    params: string[];
-    formatReturn: any;
+    params: any[];
+    formatReturn?: any;
 }
 interface InterfaceCallback {
     (...args: any): void;
 }
 
-declare class export_default$4{
+declare class Main {
     #private;
     constructor(funcBuildSend: any);
     _overrideFormatReturn: (method: string, formatReturn: any) => void;
+    _eth: (method: string, params: any[], formatReturn?: any) => any;
     eth_subscribe: (...params: any) => any;
     eth_unsubscribe: (subscriptionId: string) => any;
     eth_blockNumber: () => any;
@@ -174,8 +174,8 @@ declare class export_default{
 declare class Provider {
     #private;
     client: export_default$3 | export_default$2 | export_default$1;
-    ethBuild: export_default$4;
-    ethSend: export_default$4;
+    ethBuild: Main;
+    ethSend: Main;
     customSend: export_default;
     /**
      *
